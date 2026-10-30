@@ -1,28 +1,35 @@
-# How senders are grouped
+# The rulebook 📏
 
-Grouping happens per **sender**, not per email. One decision then covers every past and future email from that address, which is what makes the cleanup fast.
+Used by the Claude prompts (02-group) and, as regex, by TabTidy. One sender or email → one group → one tab → one label.
 
-| Group | Typical senders | Default action | Why |
-|---|---|---|---|
-| Promotions / ads | shops, product marketing, onboarding drips ("you haven't finished setting up…") | Unsubscribe | Stops the mail at the source. |
-| Newsletters | digests, product-update newsletters | Label, or Unsubscribe if never read | Some are worth keeping, just not in the inbox. |
-| Social notifications | Facebook, LinkedIn, Instagram | Unsubscribe via the app's notification settings | Their unsubscribe links often only cover one notification type. |
-| Transactional | receipts, bills, bank alerts, OTPs, security alerts | Keep or Label | You may need these later; security alerts must stay visible. |
-| Service notices | policy reminders, welcome emails, account notices | Archive | Rarely need action; still searchable. |
-| Suspicious | look-alike domains, prize bait | Mark as spam | Never click their links, including unsubscribe. |
-| Real people | anyone writing to you personally | Keep | This is the mail the cleanup protects. |
-| Needs review | unclear senders; mail addressed to another address that still reaches you | Keep | A human should look first. |
+| Group | Examples | Tab | Label | Default action |
+|---|---|---|---|---|
+| 🔐 security | OTP, TAC, "new sign-in", password reset | Primary | Security & Account | Keep |
+| ⚠️ action | "payment failed", "action required", overdue | Primary | Bills & Receipts | Keep, then act |
+| 🏛️ official | `*.gov`, `*.gov.my`, tax, pension | Primary | Official & Gov | Keep |
+| 👤 people | anyone writing to you personally | Primary | — | Keep |
+| 🧾 bills | receipts, invoices, bank and utility statements | Updates | Bills & Receipts | Label |
+| 🔁 subscriptions | plan started/ended, trial ending, renewal | Updates | Subscriptions | Label |
+| 📦 orders | shipped, out for delivery, tracking | Updates | Orders & Deliveries | Label |
+| 🎫 travel | booking confirmation, e-ticket, itinerary | Updates | Travel & Bookings | Label |
+| 💼 jobs | job alerts, applications | Updates | Jobs | Label |
+| 📰 newsletters | digests you signed up for | Updates | Newsletters | Label, or unsubscribe if never read |
+| 🛠️ notices | app, cloud, policy and terms updates | Updates | Notices | Label or archive |
+| 💬 social | social network notifications | Social | Social | Unsubscribe in app settings, delete old |
+| 🛍️ promotions | sales, vouchers, "we miss you" | Promotions | Ads & Promotions | Unsubscribe and delete |
+| 🚩 suspicious | look-alike brands, prize bait | — | — | Mark as spam |
+| 🤷 review | bulk mail nothing recognised | Forums | Review needed | You decide |
 
-## Signals Claude uses
+## Signals
 
-- **Volume and regularity.** A sender with a steady weekly cadence is almost always automated.
-- **Read rate.** A busy sender you never open is the strongest unsubscribe candidate. If nearly everything is unread, read rate stops being useful and volume decides.
-- **Address shape.** `noreply@`, `news@`, `marketing@`, `mail.<brand>` and `engage.<brand>` subdomains point to bulk mail.
-- **Subject lines.** "Last chance", "misses you", "% off" mark marketing; "receipt", "security alert", "verify" mark mail to keep.
-- **Recipient.** Mail addressed to a different address than yours goes to review: it can mean a forwarding rule or alias you forgot about.
+- **Subject words beat sender names** for money mail: "receipt", "invoice", "payment failed".
+- **Marketing senders** look like `marketing@`, `offers@`, `news@`, or `mail.` / `email.` / `engage.` subdomains, and always carry an unsubscribe header.
+- **Unsubscribe header present** = mass mail. Absent = probably a person.
+- **You replied** = a real conversation, so it stays in Primary.
+- **Recipient isn't you** (mail for another address reaching your inbox) → review. You may have a forwarding rule or alias you forgot about.
 
-## Things the suggestions never do
+## Never
 
-- Suggest deleting anything. The strongest action is archive.
-- Suggest unsubscribing from a suspicious sender.
-- Touch security, banking or government mail.
+- Suggest deleting or unsubscribing from security, action, official or people mail.
+- Unsubscribe from suspicious mail. Mark it as spam instead.
+- Delete permanently. Trash only.

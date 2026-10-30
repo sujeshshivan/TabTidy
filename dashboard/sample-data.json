@@ -110,7 +110,7 @@
     1
    ],
    "group": "promotions",
-   "action": "unsubscribe",
+   "action": "delete",
    "reason": "Re-engagement nudges.",
    "sample_subject": "Your first lesson misses you"
   },
@@ -163,7 +163,7 @@
     3,
     4
    ],
-   "group": "transactional",
+   "group": "bills",
    "action": "keep",
    "reason": "Account alerts. Always keep.",
    "sample_subject": "Your statement is ready"
@@ -217,7 +217,7 @@
     1,
     1
    ],
-   "group": "transactional",
+   "group": "bills",
    "action": "label",
    "reason": "Monthly receipts. Label as Receipts.",
    "sample_subject": "Your receipt for October"
@@ -235,7 +235,7 @@
     1,
     1
    ],
-   "group": "service",
+   "group": "notices",
    "action": "archive",
    "reason": "Policy reminders.",
    "sample_subject": "Quarterly reminder about our terms"
@@ -253,7 +253,7 @@
     0,
     1
    ],
-   "group": "transactional",
+   "group": "security",
    "action": "keep",
    "reason": "Sign-in and security alerts.",
    "sample_subject": "New sign-in on Windows"
@@ -271,7 +271,7 @@
     1,
     0
    ],
-   "group": "service",
+   "group": "people",
    "action": "keep",
    "reason": "Support replies.",
    "sample_subject": "Re: your ticket #4821"

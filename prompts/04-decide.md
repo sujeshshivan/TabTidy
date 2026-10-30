@@ -1,25 +1,25 @@
-# 04 · Lock in your decisions
+# 04 · Lock in your decisions ✅
 
-**Changes your mailbox:** No.
+> **Changes Gmail?** No.
 
-Go through the dashboard first and change any suggested action you disagree with. The **Quick wins** row shows where one decision removes the most mail.
+Go through the dashboard first. Change any suggestion you disagree with. **Quick wins** shows where one click removes the most mail.
 
-## Prompt (dashboard published as an artifact)
+## Prompt (dashboard is a Claude artifact)
 
 ```
-Read my decisions from the Inbox Triage Board artifact (the "decisions"
-collection holds only the senders I changed; everything else uses the
-suggested action). Give me the final list grouped by action
-(keep / label / archive / unsubscribe / spam) with sender and email count.
-Do not do anything yet.
+Read my decisions from the dashboard artifact. The "decisions" collection
+only holds senders I changed; everyone else uses the suggested action.
+Show the final list grouped by action (keep / label / archive /
+unsubscribe / delete / spam) with sender and email count.
+Don't do anything yet.
 ```
 
 ## Prompt (local dashboard)
 
-Click **Download decisions.json** (or **Copy decisions**) and paste it in:
+Click **Copy decisions** (or **Download decisions.json**), then:
 
 ```
 Here are my inbox decisions: <paste>
-Show me the final list grouped by action with sender and email count.
-Do not do anything yet.
+Show the final list grouped by action with sender and email count.
+Don't do anything yet.
 ```

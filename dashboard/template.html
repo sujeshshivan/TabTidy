@@ -77,7 +77,7 @@ section { margin-top: 28px; }
 @media (max-width: 860px) { .charts { grid-template-columns: minmax(0, 1fr); } }
 .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; min-width: 0; }
 .panel h3 { margin: 0 0 12px; font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
-.bar-row { display: grid; grid-template-columns: 158px minmax(0, 1fr) 40px; gap: 10px; align-items: center; padding: 5px 6px; border-radius: 6px; cursor: pointer; border: 0; background: none; color: inherit; font: inherit; width: 100%; text-align: left; }
+.bar-row { display: grid; grid-template-columns: 172px minmax(0, 1fr) 40px; gap: 10px; align-items: center; padding: 5px 6px; border-radius: 6px; cursor: pointer; border: 0; background: none; color: inherit; font: inherit; width: 100%; text-align: left; }
 .bar-row:hover, .bar-row.on { background: var(--surface-2); }
 .bar-row .lbl { display: flex; gap: 8px; align-items: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dot { width: 10px; height: 10px; border-radius: 3px; flex: none; }
@@ -209,23 +209,34 @@ textarea.copybox { width: 100%; min-height: 80px; font: 12px var(--font-mono); b
 <script>
 (function () {
   const GROUPS = {
-    promotions:    { label: "Promotions / ads", color: "var(--g-promotions)" },
+    security:      { label: "Security & logins", color: "var(--g-suspicious)" },
+    action:        { label: "Action needed", color: "var(--stamp)" },
+    official:      { label: "Official & gov", color: "var(--g-people)" },
+    people:        { label: "Real people", color: "var(--g-people)" },
+    bills:         { label: "Bills & receipts", color: "var(--g-transactional)" },
+    subscriptions: { label: "Subscriptions", color: "var(--g-transactional)" },
+    orders:        { label: "Orders & deliveries", color: "var(--g-service)" },
+    travel:        { label: "Travel & bookings", color: "var(--g-social)" },
+    jobs:          { label: "Jobs", color: "var(--g-service)" },
     newsletters:   { label: "Newsletters", color: "var(--g-newsletters)" },
+    notices:       { label: "App & service notices", color: "var(--g-service)" },
     social:        { label: "Social notifications", color: "var(--g-social)" },
-    transactional: { label: "Transactional (keep)", color: "var(--g-transactional)" },
-    service:       { label: "Service notices", color: "var(--g-service)" },
+    promotions:    { label: "Promotions / ads", color: "var(--g-promotions)" },
     suspicious:    { label: "Suspicious", color: "var(--g-suspicious)" },
     review:        { label: "Needs review", color: "var(--g-review)" },
-    people:        { label: "Real people", color: "var(--g-people)" }
+    // older group names, still accepted
+    transactional: { label: "Transactional (keep)", color: "var(--g-transactional)" },
+    service:       { label: "Service notices", color: "var(--g-service)" }
   };
   const ACTIONS = {
     unsubscribe: { label: "Unsubscribe", hint: "Stop the mail at the source. Click the sender's unsubscribe link, or turn off notifications in the app.", color: "var(--stamp)" },
     archive:     { label: "Archive", hint: "Remove from inbox. Still searchable, nothing is deleted.", color: "var(--g-service)" },
     label:       { label: "Label, skip inbox", hint: "Keep it, but file it under a label so it stops crowding the inbox.", color: "var(--g-newsletters)" },
     keep:        { label: "Keep in inbox", hint: "Mail that matters: security alerts, payments, support replies.", color: "var(--g-transactional)" },
+    delete:      { label: "Delete", hint: "Move to Trash (kept 30 days). Check for security mail from the same company first.", color: "var(--g-suspicious)" },
     spam:        { label: "Mark as spam", hint: "For suspicious senders. Never click their unsubscribe links.", color: "var(--g-suspicious)" }
   };
-  const CUT = new Set(["unsubscribe", "archive", "spam"]);
+  const CUT = new Set(["unsubscribe", "archive", "delete", "spam"]);
   const LS_KEY = "inbox-triage-decisions";
 
   let data = JSON.parse(document.getElementById("inbox-data").textContent);

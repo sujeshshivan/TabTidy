@@ -7,6 +7,8 @@ Thanks for helping make inboxes calmer.
 - **Prompts.** Sharper wording, better safety rails, versions for other mail providers (Outlook, Fastmail).
 - **Grouping rules.** New signals or common senders that get misgrouped. Edit [`docs/classification-rules.md`](docs/classification-rules.md) and the matching prompt.
 - **Dashboard.** Accessibility, new views, a Gmail filter export. Edit `dashboard/template.html`, then run `python tools/build_dashboard.py` to refresh `dashboard/index.html`.
+- **TabTidy rules.** Your country's banks, couriers, government domains. Edit `apps-script/TabTidy.gs`, and add a test case to your PR description (sender + subject → expected tab).
+- **Filters.** Edit the lists in `filters/build_filters.py`, run it, and commit both XML files.
 
 ## Ground rules
 

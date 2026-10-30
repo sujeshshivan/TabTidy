@@ -1,100 +1,129 @@
-# Mail Inbox Manager
+# 📬 Mail Inbox Manager
 
-Clean up a Gmail inbox buried in ads and notifications, using Claude and a reusable triage dashboard. You scan, see where the clutter comes from, decide once per sender, and only then let Claude touch your mailbox.
+**Your inbox is not a junk drawer. Let's make it act like one less.**
 
-![Dashboard preview: summary figures, emails per group, monthly chart and the sender table](docs/preview.png)
+Mail Inbox Manager helps you sort a Gmail inbox that's drowning in ads, notifications and "we miss you 🥺" emails, so **Primary** goes back to being what it was meant for: people, login codes, and things that actually need you.
 
-## The problem
+It helps you:
 
-Most cluttered inboxes are not full of spam. They are full of mail you once agreed to: shop promotions, onboarding drips, newsletters, social notifications. Spam filters let it through because it is legitimate, and the mail that matters (bills, security alerts, real people) gets buried.
+- 💸 **find your bills**: receipts, invoices, and the "payment failed" email you definitely didn't miss for three months
+- 🔔 **separate notifications**: app notices, newsletters and social pings each get a home
+- 📢 **corral the ads** into one place, ready to unsubscribe from or delete in bulk
+- 🚪 **unsubscribe** from the worst offenders, with one link per sender
+- 🗑️ **delete** the junk, without throwing away a security alert by accident
 
-What makes it hard to fix by hand:
+![Dashboard preview: headline numbers, emails per group, monthly chart and the sender table](docs/preview.png)
 
-- **Volume is concentrated but invisible.** A few senders produce most of the clutter, and you cannot see that from inside the inbox.
-- **"Unwanted" is personal.** One shop's promo is noise; another's you use.
-- **Some automated mail matters.** Receipts, OTPs and security alerts look like clutter but must stay.
-- **Unsubscribing is slow and sometimes risky.** One sender at a time, and suspicious senders treat a click as proof your address is live.
+---
 
-## What people have tried
+## 🤔 The problem
 
-| Approach | Limitation |
+Most messy inboxes aren't full of spam. They're full of mail you *agreed to* once:
+
+> *"Sign up to see the price"* → 4 emails a week for the rest of your life.
+
+Spam filters let it through because it's legitimate. Then the email that matters (a bill, a security alert, a real human) gets buried under a promo for something you looked at once in 2023.
+
+The tricky bits:
+
+| Problem | Why it's hard |
 |---|---|
-| Manual filters and rules | Tedious, one sender at a time. |
-| Gmail's tabs (Promotions, Social, Updates) | Hide the mail without reducing it. |
-| Bulk-unsubscribe services | Need full access to your mail; some have sold user data. |
-| Paid inbox sorters | Subscription, and the rules are a black box. |
+| A few senders make most of the mess | You can't see that from inside the inbox |
+| "Unwanted" is personal | One shop's promo is noise, another's you actually use |
+| Companies mix important mail into the noise | The same app sends "50% off!" *and* "your payment failed" |
+| Social networks hide security alerts among notifications | Delete all of them and you might trash "new login from another country" |
 
-## This approach
+---
 
-Claude reads your inbox through Gmail's official connector with your own sign-in, groups **senders** (not individual emails), and suggests an action for each. You review everything in a dashboard. Nothing changes in Gmail until you confirm, and nothing is ever deleted; the strongest action is archive.
+## 🛣️ Pick your path
 
-In practice a few dozen senders usually account for hundreds of emails, and a handful of them send most of it. Deciding once per sender is what makes the cleanup fast.
-
-## Quick start
-
-1. Connect Gmail in Claude: **Settings → Connectors → Gmail**.
-2. Run the prompts in order. Each file says whether it changes your mailbox.
-
-| Step | Prompt | Changes Gmail? |
+|   | **Path 1 · Claude + Gmail** 🤖 | **Path 2 · Script + filters** ⚙️ |
 |---|---|---|
-| 1 | [Scan the inbox](prompts/01-scan.md) | No |
-| 2 | [Group the senders](prompts/02-group.md) | No |
-| 3 | [Build the dashboard](prompts/03-dashboard.md) | No |
-| 4 | [Lock in your decisions](prompts/04-decide.md) | No |
-| 5 | [Clean up, in batches](prompts/05-clean.md) | Yes, after you confirm |
-| 6 | [Unsubscribe](prompts/06-unsubscribe.md) | No, you click |
-| 7 | [Keep it clean](prompts/07-maintain.md) | Labels only |
+| **Best for** | A one-time deep clean, with a dashboard | Set-and-forget sorting, no AI needed |
+| **You need** | Claude with the Gmail connector | A Google account (that's it) |
+| **What it does** | Scans, groups, builds a dashboard, sorts, unsubscribes, deletes | Sorts every new email into the right tab and label, on a schedule |
+| **Effort** | Chat with Claude, approve each step | ~10 minutes setup, then nothing |
+| **Guide** | [docs/path-1-claude-gmail.md](docs/path-1-claude-gmail.md) | [docs/path-2-script-and-filters.md](docs/path-2-script-and-filters.md) |
 
-## The dashboard
+**Do both** for the best result: Path 1 cleans up the past, Path 2 keeps it clean.
 
-[`dashboard/index.html`](dashboard/index.html) is a single self-contained page that opens with fictional sample data. It shows:
+---
 
-- headline figures (emails, senders, never opened, from real people, how much your plan cuts)
-- emails per group (click to filter) and per month, stacked by group
-- quick wins: the busiest unsubscribe candidates
-- a sortable, searchable sender table with a decision dropdown per sender
-- an action plan with a **Copy Gmail search** button per action, and your decisions as JSON to hand back to Claude
+## 🗺️ Where everything ends up
 
-Use it with your own data:
+| Gmail tab | What lands there | Label |
+|---|---|---|
+| **Primary** | 👤 People you write to | — |
+| | 🔐 Login codes, OTP, security alerts | Security & Account |
+| | ⚠️ Payment failed, overdue, action required | Bills & Receipts |
+| | 🏛️ Government and official | Official & Gov |
+| | ✈️ Flight cancelled, schedule change | Travel & Bookings |
+| **Updates** | 🧾 Receipts, invoices, bank and utility bills | Bills & Receipts |
+| | 🔁 Plans, trials, renewals | Subscriptions |
+| | 📦 Shipped, out for delivery | Orders & Deliveries |
+| | 🎫 Bookings, e-tickets | Travel & Bookings |
+| | 💼 Job alerts, applications | Jobs |
+| | 📰 Newsletters and digests | Newsletters |
+| | 🛠️ App, cloud and policy notices | Notices |
+| **Promotions** | 🛍️ Sales, vouchers, "we miss you" | Ads & Promotions |
+| **Social** | 💬 Social network notifications | Social |
+| **Forums** | 🤷 Bulk mail nobody recognised yet | Review needed |
 
-```bash
-# Option A: open dashboard/index.html and click "Load scan JSON"
-# Option B: bake your scan into a standalone page
-python tools/build_dashboard.py my-scan.json -o my-dashboard.html
+(Gmail only has those five tabs, so **Forums** doubles as the "Review needed" pile.)
+
+---
+
+## ⚡ Quick start
+
+### Path 1: Claude + Gmail
+1. In Claude, connect Gmail: **Settings → Connectors → Gmail**.
+2. Follow the prompts in order: [`prompts/01-scan.md`](prompts/01-scan.md) → [`09-keep-clean.md`](prompts/09-keep-clean.md).
+
+### Path 2: TabTidy script
+Add the **TabTidy** library to your own Apps Script project:
+
+```
+Script ID: 1sj4sFD5amFGbVXBACvSlhsKh_RApKp3wfu7_1-1s6QHS1O-jAasOGwI7
+Identifier: TabTidy
 ```
 
-The JSON format is documented in [docs/data-schema.md](docs/data-schema.md). When Claude publishes the dashboard as an artifact (prompt 03), your decisions are saved with the artifact so Claude can read them back in prompt 04.
+…or skip the library and copy-paste [`apps-script/TabTidy.gs`](apps-script/TabTidy.gs) into a new project. Full steps: [Path 2 guide](docs/path-2-script-and-filters.md).
 
-## Repository layout
+---
+
+## 📁 What's in the box
 
 ```
-prompts/        the seven step-by-step prompts
-dashboard/      template.html, sample-data.json, index.html (sample build)
-tools/          build_dashboard.py (scan JSON -> local dashboard), check_no_personal_data.py
-docs/           how it works, grouping rules, data format
+prompts/          9 step-by-step prompts for Claude (Path 1)
+dashboard/        the triage dashboard: template, sample data, sample build
+apps-script/      TabTidy.gs (the sorter) + Wrapper.gs (for library users)
+filters/          ready-to-import Gmail filters + the generator script
+tools/            build a local dashboard · check for personal data
+docs/             guides, rules, data format, FAQ
 ```
 
-## Privacy and security
+---
 
-This repository holds **only** the method: prompts, documentation, a dashboard template and fictional sample data. It never holds anyone's mail.
+## 🔒 Safe by design
 
-- Your mail stays in Gmail. Claude reads sender, date, labels and a few subject lines, using your own Google sign-in.
-- Your personal dashboard lives in your Claude account (as a private artifact) or on your own computer. It is never part of this repo.
-- `.gitignore` blocks common scan and dashboard file names (`*.private.json`, `my-*.json`, `my-*.html`, `scans/`, `decisions.json`).
-- `tools/check_no_personal_data.py` fails if any file contains a real-looking email address or scan output. It runs on every push and pull request (`.github/workflows/privacy-check.yml`); run it yourself before committing.
-- Sample data uses reserved `.example` domains only.
+- **Nothing is ever permanently deleted.** "Delete" means Gmail's Trash, which you can undo for 30 days.
+- **Every step that changes Gmail asks first**, and works in small batches you can check.
+- **TabTidy only adds labels and moves mail between tabs.** It never deletes, replies, forwards or clicks anything.
+- **Your mail stays in Gmail.** Claude reads sender, subject and dates; TabTidy reads sender, subject and the unsubscribe header. Neither sends your mail anywhere else.
+- **No personal data in this repo.** A check runs on every push to keep it that way.
 
-## Roadmap
+Read more: [SECURITY.md](SECURITY.md).
 
-- Outlook / Microsoft 365 version of the prompts
-- Per-sender read rate in the scan (when the connector exposes it cheaply)
-- Gmail filter export (XML) from the dashboard's decisions
-- More languages for the grouping rules
+---
 
-## Contributing
+## 🙋 FAQ & troubleshooting
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Improvements to the prompts, grouping rules and dashboard are all welcome.
+"Could not create" when importing filters? The "unverified app" warning? See the [FAQ](docs/faq.md).
 
-## License
+## 🤝 Contributing
 
-[MIT](LICENSE)
+Better regex? Your country's banks and couriers? A smarter dashboard? PRs welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## 📜 License
+
+[MIT](LICENSE). Use it, fork it, tidy everything.

@@ -1,42 +1,58 @@
-# How it works
+# How it works 🔧
 
-## The flow
+## The idea in one line
+
+**Decide once per sender, not once per email.** A typical inbox has hundreds or thousands of emails but only a few dozen senders, and a handful of them send most of it.
+
+## Three layers
 
 ```mermaid
-flowchart LR
-  A[Gmail] -->|read-only connector| B(01 Scan)
-  B --> C(02 Group)
-  C --> D[scan JSON]
-  D --> E(03 Dashboard)
-  E -->|you pick actions| F[decisions]
-  F --> G(04 Confirm list)
-  G -->|you approve each batch| H(05 Clean up)
-  G --> I(06 Unsubscribe links)
-  H --> J(07 Weekly upkeep)
+flowchart TB
+  subgraph Clean the past
+    A[Claude + Gmail connector] --> B[scan → dashboard → decide]
+    B --> C[label · move tab · unsubscribe · trash]
+  end
+  subgraph Sort the future
+    D[Gmail filters] -->|instant| E[Primary essentials]
+    F[TabTidy script] -->|on schedule| G[every tab + label]
+  end
+  C --> D
+  C --> F
 ```
 
-Steps 01 to 04 only read. Step 05 is the first that changes Gmail, and it works in small confirmed batches.
+| Layer | Runs | Good at | Can't |
+|---|---|---|---|
+| **Claude + Gmail** | When you chat | Understanding context, dashboards, one-off cleanups | Create filters; it's slow for thousands of single changes |
+| **Gmail filters** | Instantly | Must-see alerts the second they arrive | Regex; tab moves other than Primary (on import) |
+| **TabTidy** | Every N minutes/hours/days | Regex rules, all five tabs, one home per email | React instantly (no "new mail" signal) |
 
-## Why per-sender, not per-email
+## How TabTidy decides
 
-A typical inbox has hundreds of emails but only a few dozen senders, and a handful of them send most of the mail. It is common for every one of the busiest senders to be automated. Deciding once per sender turns hundreds of choices into a few dozen.
+For each unsorted email, top to bottom:
 
-## Why the Gmail connector
+1. **You replied in this conversation?** → Primary. It's a real conversation.
+2. **Sender in `alwaysPrimary`?** → Primary. In `alwaysPromotions`? → Promotions.
+3. **Rules, first match wins:** security → payment problems → government → flight changes → bills → orders → travel → subscriptions → jobs → notices → social → newsletters → ads.
+4. **Nothing matched?**
+   - Mass mail (has an unsubscribe header) → **Forums**, labelled **Review needed**
+   - Anything else (probably a person) → **Primary**, no label
+5. Add the hidden **Sorted** label so it's never re-sorted.
 
-- It runs with your own Google sign-in. No third-party unsubscribe service gets access to your mail.
-- Claude can search, read metadata, label, archive and mark spam.
-- It cannot create Gmail filters, so permanent auto-sorting is done either by the weekly task (prompt 07) or by pasting the dashboard's Gmail search into Gmail's **Create filter**.
+Order matters: security comes first, so a "new login" email from a social network lands in Primary, not Social. Newsletters come before ads, so a digest isn't treated as a promo.
 
-## Scanning limits to know about
+## Lessons from real cleanups 📚
 
-- A search returns at most 50 threads per page. The scan prompt splits the date range into windows that each stay under 50, so nothing is silently dropped.
-- Counts are **threads**, not individual messages. For bulk mail these are almost always the same.
-- Gmail's result counts are estimates; small differences against the scan total are normal.
+- **Bills hide among ad senders.** The same company sends promos *and* "payment failed". Sort by subject, not just sender.
+- **Security alerts hide among notifications.** Social networks send login alerts from a sibling address (`security@…`). Check before bulk-deleting.
+- **Searches cap at 50 per page.** Scan in small date windows or you'll miss mail.
+- **Filter import is picky.** "Categorize as Primary" works; other tabs fail. Hence TabTidy.
+- **Unread rate says a lot.** When 99% of an inbox is unread, volume (not read rate) tells you what to cut.
 
 ## Where your data lives
 
 | Thing | Where |
 |---|---|
-| Your emails | Stay in Gmail. Claude reads metadata (sender, date, labels, a few subject lines). |
-| Scan JSON | In your Claude conversation, or on your computer if you save it. Keep it out of git. |
-| Dashboard decisions | Claude artifact: the artifact's private database. Local file: your browser's local storage. |
+| Your emails | Gmail. Never copied anywhere by this project. |
+| Scan JSON | Your Claude chat, or a file on your computer. Keep it out of git. |
+| Dashboard decisions | The Claude artifact's private storage, or your browser's local storage. |
+| TabTidy's state | Labels in your Gmail. That's it. |

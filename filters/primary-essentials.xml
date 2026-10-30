@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns='http://www.w3.org/2005/Atom' xmlns:apps='http://schemas.google.com/apps/2006'>
+<title>Mail Inbox Manager filters: primary-essentials.xml</title>
+<!-- Security, OTP and logins -->
+<entry>
+<category term='filter'></category>
+<title>Mail Filter</title>
+<content></content>
+<apps:property name='hasTheWord' value='from:(accounts.google.com OR noreply-accounts@google.com OR security@facebookmail.com OR registration@facebookmail.com OR security@mail.instagram.com OR security-noreply@linkedin.com OR account-security-noreply@accountprotection.microsoft.com OR appleid@id.apple.com) OR subject:("security alert" OR "verification code" OR OTP OR TAC OR "one-time" OR "one time password" OR "new sign-in" OR "sign-in attempt" OR "new login" OR "login alert" OR "new device" OR "password reset" OR "reset your password" OR "verify your email" OR "confirm your email" OR "confirmation code" OR "2-step" OR "two-factor" OR "suspicious" OR "unusual activity" OR "account locked" OR "kod pengesahan")'/>
+<apps:property name='label' value="Security &amp; Account"/>
+<apps:property name='smartLabelToApply' value='^smartlabel_personal'/>
+<apps:property name='shouldAlwaysMarkAsImportant' value='true'/>
+<apps:property name='shouldNeverSpam' value='true'/>
+<apps:property name='sizeOperator' value='s_sl'/>
+<apps:property name='sizeUnit' value='s_smb'/>
+</entry>
+<!-- Payment problems and action required -->
+<entry>
+<category term='filter'></category>
+<title>Mail Filter</title>
+<content></content>
+<apps:property name='hasTheWord' value='subject:("action required" OR "action needed" OR "payment failed" OR "failed to process" OR "update your payment" OR "verify your payment" OR "payment declined" OR "past due" OR overdue OR "final notice" OR "account suspended" OR "tindakan diperlukan")'/>
+<apps:property name='label' value="Bills &amp; Receipts"/>
+<apps:property name='smartLabelToApply' value='^smartlabel_personal'/>
+<apps:property name='shouldAlwaysMarkAsImportant' value='true'/>
+<apps:property name='shouldNeverSpam' value='true'/>
+<apps:property name='sizeOperator' value='s_sl'/>
+<apps:property name='sizeUnit' value='s_smb'/>
+</entry>
+<!-- Government and official -->
+<entry>
+<category term='filter'></category>
+<title>Mail Filter</title>
+<content></content>
+<apps:property name='hasTheWord' value="from:(gov.my OR gov.uk OR gov.sg OR gov.au OR gov.in OR gov.ph OR go.id OR usa.gov OR irs.gov OR ssm.com.my)"/>
+<apps:property name='label' value="Official &amp; Gov"/>
+<apps:property name='smartLabelToApply' value='^smartlabel_personal'/>
+<apps:property name='shouldAlwaysMarkAsImportant' value='true'/>
+<apps:property name='shouldNeverSpam' value='true'/>
+<apps:property name='sizeOperator' value='s_sl'/>
+<apps:property name='sizeUnit' value='s_smb'/>
+</entry>
+<!-- Flight and booking changes -->
+<entry>
+<category term='filter'></category>
+<title>Mail Filter</title>
+<content></content>
+<apps:property name='hasTheWord' value='subject:("flight cancelled" OR "flight canceled" OR "schedule change" OR "flight delay" OR "gate change" OR "booking cancelled")'/>
+<apps:property name='label' value="Travel &amp; Bookings"/>
+<apps:property name='smartLabelToApply' value='^smartlabel_personal'/>
+<apps:property name='shouldAlwaysMarkAsImportant' value='true'/>
+<apps:property name='shouldNeverSpam' value='true'/>
+<apps:property name='sizeOperator' value='s_sl'/>
+<apps:property name='sizeUnit' value='s_smb'/>
+</entry>
+</feed>

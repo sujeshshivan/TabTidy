@@ -53,8 +53,8 @@ The dashboard reads one JSON object with two keys: `meta` and `senders`. A compl
 | `email` | yes | Sender address. Also the key decisions are saved under. |
 | `brand` | yes | Human name for the sender. |
 | `count` | yes | Threads from this sender in the window. |
-| `group` | yes | One of `promotions`, `newsletters`, `social`, `transactional`, `service`, `suspicious`, `people`, `review`. |
-| `action` | yes | Suggested action: `unsubscribe`, `archive`, `label`, `keep`, `spam`. |
+| `group` | yes | One of `security`, `action`, `official`, `people`, `bills`, `subscriptions`, `orders`, `travel`, `jobs`, `newsletters`, `notices`, `social`, `promotions`, `suspicious`, `review`. See [classification-rules.md](classification-rules.md). |
+| `action` | yes | Suggested action: `keep`, `label`, `archive`, `unsubscribe`, `delete`, `spam`. |
 | `domain` | no | Sender domain. |
 | `by_month` | no | Counts per month, aligned with `meta.months`. |
 | `reason` | no | One line explaining the suggestion. |
