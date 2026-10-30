@@ -1,6 +1,6 @@
 /**
  * TabTidy — keeps Gmail's Primary tab for things that matter.
- * Part of Mail Inbox Manager (open source, MIT).
+ * https://github.com/sujeshshivan/TabTidy (open source, MIT).
  *
  * Every run, each unsorted inbox email gets ONE Gmail tab and ONE label:
  *

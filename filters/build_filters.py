@@ -134,7 +134,7 @@ def write(name, entries, primary):
     body = "\n".join(entry(n, q, l, primary) for n, q, l in entries)
     xml = ("<?xml version='1.0' encoding='UTF-8'?>\n"
            "<feed xmlns='http://www.w3.org/2005/Atom' xmlns:apps='http://schemas.google.com/apps/2006'>\n"
-           f"<title>Mail Inbox Manager filters: {name}</title>\n{body}\n</feed>\n")
+           f"<title>TabTidy filters: {name}</title>\n{body}\n</feed>\n")
     (HERE / name).write_text(xml, encoding="utf-8")
     print(f"Wrote filters/{name}: {len(entries)} filters")
 

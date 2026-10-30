@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <feed xmlns='http://www.w3.org/2005/Atom' xmlns:apps='http://schemas.google.com/apps/2006'>
-<title>Mail Inbox Manager filters: labels.xml</title>
+<title>TabTidy filters: labels.xml</title>
 <!-- Receipts and invoices -->
 <entry>
 <category term='filter'></category>

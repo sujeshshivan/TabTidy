@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <feed xmlns='http://www.w3.org/2005/Atom' xmlns:apps='http://schemas.google.com/apps/2006'>
-<title>Mail Inbox Manager filters: primary-essentials.xml</title>
+<title>TabTidy filters: primary-essentials.xml</title>
 <!-- Security, OTP and logins -->
 <entry>
 <category term='filter'></category>

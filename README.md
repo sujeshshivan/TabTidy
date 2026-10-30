@@ -1,8 +1,8 @@
-# 📬 Mail Inbox Manager
+# 📬 TabTidy
 
 **Your inbox is not a junk drawer. Let's make it act like one less.**
 
-Mail Inbox Manager helps you sort a Gmail inbox that's drowning in ads, notifications and "we miss you 🥺" emails, so **Primary** goes back to being what it was meant for: people, login codes, and things that actually need you.
+TabTidy helps you sort a Gmail inbox that's drowning in ads, notifications and "we miss you 🥺" emails, so **Primary** goes back to being what it was meant for: people, login codes, and things that actually need you.
 
 It helps you:
 
