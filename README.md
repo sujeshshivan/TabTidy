@@ -12,7 +12,16 @@ It helps you:
 - 🚪 **unsubscribe** from the worst offenders, with one link per sender
 - 🗑️ **delete** the junk, without throwing away a security alert by accident
 
-![Dashboard preview: headline numbers, emails per group, monthly chart and the sender table](docs/preview.png)
+![Dashboard preview: headline numbers with icons, emails per week, top senders](docs/preview.png)
+
+<details>
+<summary>📊 More screenshots: interactive charts, security & bills, dark mode</summary>
+
+![Emails per week, per tab, top senders, new senders](docs/preview-charts.png)
+![Logins & security per service, bills & payments](docs/preview-security.png)
+![Dark mode](docs/preview-dark.png)
+
+</details>
 
 ---
 

@@ -294,5 +294,295 @@
    "reason": "Addressed to a different email address. Check why it reaches you.",
    "sample_subject": "A third-party app was added to your account"
   }
- ]
+ ],
+ "insights": {
+  "weekly_note": "Emails per week (sample data).",
+  "weekly": [
+   {
+    "week": "2026-05-01",
+    "count": 11
+   },
+   {
+    "week": "2026-05-08",
+    "count": 13
+   },
+   {
+    "week": "2026-05-15",
+    "count": 12
+   },
+   {
+    "week": "2026-05-22",
+    "count": 15
+   },
+   {
+    "week": "2026-05-29",
+    "count": 14
+   },
+   {
+    "week": "2026-06-05",
+    "count": 12
+   },
+   {
+    "week": "2026-06-12",
+    "count": 13
+   },
+   {
+    "week": "2026-06-19",
+    "count": 16
+   },
+   {
+    "week": "2026-06-26",
+    "count": 12
+   },
+   {
+    "week": "2026-07-03",
+    "count": 14
+   },
+   {
+    "week": "2026-07-10",
+    "count": 15
+   },
+   {
+    "week": "2026-07-17",
+    "count": 18
+   },
+   {
+    "week": "2026-07-24",
+    "count": 13
+   },
+   {
+    "week": "2026-07-31",
+    "count": 12
+   },
+   {
+    "week": "2026-08-07",
+    "count": 11
+   },
+   {
+    "week": "2026-08-14",
+    "count": 13
+   },
+   {
+    "week": "2026-08-21",
+    "count": 12
+   },
+   {
+    "week": "2026-08-28",
+    "count": 14
+   },
+   {
+    "week": "2026-09-04",
+    "count": 12
+   },
+   {
+    "week": "2026-09-11",
+    "count": 13
+   },
+   {
+    "week": "2026-09-18",
+    "count": 15
+   },
+   {
+    "week": "2026-09-25",
+    "count": 13
+   },
+   {
+    "week": "2026-10-02",
+    "count": 12
+   },
+   {
+    "week": "2026-10-09",
+    "count": 14
+   },
+   {
+    "week": "2026-10-16",
+    "count": 13
+   },
+   {
+    "week": "2026-10-23",
+    "count": 16
+   }
+  ],
+  "tabs": {
+   "Primary": 38,
+   "Updates": 69,
+   "Promotions": 169,
+   "Social": 60,
+   "Forums": 7
+  },
+  "new_senders_by_month": [
+   9,
+   2,
+   1,
+   1,
+   1,
+   1
+  ],
+  "security": {
+   "services": [
+    {
+     "svc": "Example Mail",
+     "login": 4,
+     "code": 2,
+     "access": 3,
+     "change": 1,
+     "verify": 0,
+     "total": 10,
+     "latest": "2026-10-28"
+    },
+    {
+     "svc": "FriendSpace",
+     "login": 3,
+     "code": 1,
+     "access": 0,
+     "change": 1,
+     "verify": 0,
+     "total": 5,
+     "latest": "2026-09-14"
+    },
+    {
+     "svc": "CloudBox",
+     "login": 2,
+     "code": 0,
+     "access": 0,
+     "change": 0,
+     "verify": 1,
+     "total": 3,
+     "latest": "2026-08-02"
+    },
+    {
+     "svc": "Example Bank",
+     "login": 0,
+     "code": 3,
+     "access": 0,
+     "change": 0,
+     "verify": 0,
+     "total": 3,
+     "latest": "2026-10-11"
+    }
+   ],
+   "events": [
+    {
+     "date": "2026-10-28",
+     "svc": "Example Mail",
+     "kind": "login",
+     "subject": "New sign-in on Windows",
+     "flag": false
+    },
+    {
+     "date": "2026-10-11",
+     "svc": "Example Bank",
+     "kind": "code",
+     "subject": "Your one-time code",
+     "flag": false
+    },
+    {
+     "date": "2026-09-14",
+     "svc": "FriendSpace",
+     "kind": "login",
+     "subject": "Did you just log in from a new country?",
+     "flag": true
+    },
+    {
+     "date": "2026-09-14",
+     "svc": "FriendSpace",
+     "kind": "change",
+     "subject": "Your phone number was changed",
+     "flag": true
+    },
+    {
+     "date": "2026-08-20",
+     "svc": "Example Mail",
+     "kind": "access",
+     "subject": "You gave PhotoApp access to your account",
+     "flag": false
+    },
+    {
+     "date": "2026-08-02",
+     "svc": "CloudBox",
+     "kind": "login",
+     "subject": "New login from Chrome on macOS",
+     "flag": false
+    },
+    {
+     "date": "2026-07-19",
+     "svc": "Example Mail",
+     "kind": "login",
+     "subject": "Security alert",
+     "flag": false
+    },
+    {
+     "date": "2026-06-30",
+     "svc": "Example Bank",
+     "kind": "code",
+     "subject": "Your one-time code",
+     "flag": false
+    },
+    {
+     "date": "2026-06-02",
+     "svc": "CloudBox",
+     "kind": "verify",
+     "subject": "Confirm your email address",
+     "flag": false
+    },
+    {
+     "date": "2026-05-21",
+     "svc": "Example Mail",
+     "kind": "change",
+     "subject": "2-step verification turned on",
+     "flag": false
+    }
+   ]
+  },
+  "bills": [
+   {
+    "date": "2026-10-25",
+    "svc": "CloudBox",
+    "kind": "receipt",
+    "subject": "Your receipt for October"
+   },
+   {
+    "date": "2026-10-03",
+    "svc": "Example Bank",
+    "kind": "receipt",
+    "subject": "Your statement is ready"
+   },
+   {
+    "date": "2026-09-26",
+    "svc": "PixelStudio",
+    "kind": "problem",
+    "subject": "Payment failed: update your card"
+   },
+   {
+    "date": "2026-09-25",
+    "svc": "CloudBox",
+    "kind": "receipt",
+    "subject": "Your receipt for September"
+   },
+   {
+    "date": "2026-09-02",
+    "svc": "PixelStudio",
+    "kind": "plan",
+    "subject": "Your Pro plan ends in 7 days"
+   },
+   {
+    "date": "2026-08-25",
+    "svc": "CloudBox",
+    "kind": "receipt",
+    "subject": "Your receipt for August"
+   },
+   {
+    "date": "2026-07-14",
+    "svc": "StreamBox",
+    "kind": "plan",
+    "subject": "Your free trial ends tomorrow"
+   },
+   {
+    "date": "2026-06-10",
+    "svc": "Example Bank",
+    "kind": "problem",
+    "subject": "Action required: payment overdue"
+   }
+  ]
+ }
 }

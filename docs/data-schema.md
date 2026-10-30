@@ -60,6 +60,36 @@ The dashboard reads one JSON object with two keys: `meta` and `senders`. A compl
 | `reason` | no | One line explaining the suggestion. |
 | `sample_subject` | no | One real subject line. |
 
+## `insights` (optional: powers the charts)
+
+Every part is optional. A chart section without its data hides itself.
+
+```json
+"insights": {
+  "weekly_note": "Mail still in your mailbox, per week.",
+  "weekly": [{ "week": "2026-05-01", "count": 11 }],
+  "tabs": { "Primary": 38, "Updates": 69, "Promotions": 169, "Social": 60, "Forums": 7 },
+  "new_senders_by_month": [9, 2, 1, 1, 1, 1],
+  "security": {
+    "services": [{ "svc": "Example Mail", "login": 4, "code": 2, "access": 3, "change": 1, "verify": 0,
+                   "total": 10, "latest": "2026-10-28" }],
+    "events": [{ "date": "2026-09-14", "svc": "FriendSpace", "kind": "login",
+                 "subject": "Did you just log in from a new country?", "flag": true }]
+  },
+  "bills": [{ "date": "2026-09-26", "svc": "PixelStudio", "kind": "problem",
+              "subject": "Payment failed: update your card" }]
+}
+```
+
+| Field | Meaning |
+|---|---|
+| `weekly` | Emails per 7-day window, oldest first. `week` is the window's first day. |
+| `tabs` | Emails per Gmail tab, the way TabTidy would sort them. |
+| `new_senders_by_month` | Senders seen for the first time, aligned with `meta.months`. |
+| `security.events[].kind` | `login`, `code`, `access` (app given access), `change` (account change), `verify` |
+| `security.events[].flag` | `true` for things worth a second look: new device or country, phone or password changes. |
+| `bills[].kind` | `receipt`, `plan`, `problem` (shown in red) |
+
 ## Decisions output
 
 **Copy decisions** / **Download decisions.json** produce:

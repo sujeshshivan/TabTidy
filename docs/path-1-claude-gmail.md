@@ -52,7 +52,10 @@ Every sender goes into one group (security, bills, orders, newsletters, social, 
 Claude exports the scan as JSON and turns it into a dashboard:
 
 - headline numbers
-- emails per group and per month
+- emails per week, per Gmail tab, per group and per month
+- top 15 senders (click to jump to one) and new senders per month
+- logins & security per service, with risky alerts flagged
+- bills & payments, with payment problems in red
 - quick wins (the busiest senders to unsubscribe from)
 - a sender table with a decision dropdown each
 - Gmail searches you can copy, per action
@@ -64,7 +67,11 @@ Two ways to get it:
 | **Claude artifact** | Claude publishes the page for you | With the artifact, so Claude can read them back |
 | **Local file** | `python tools/build_dashboard.py my-scan.json -o my-dashboard.html` | In your browser; use **Copy decisions** to hand them back |
 
-Format of the JSON: [data-schema.md](data-schema.md). Try it with fake data first: open [`dashboard/index.html`](../dashboard/index.html).
+Format of the JSON: [data-schema.md](data-schema.md). Try it with fake data first: open [`dashboard/index.html`](../dashboard/index.html). Charts are interactive: hover for numbers, click legend items to hide or show a series.
+
+![Interactive charts](preview-charts.png)
+
+![Logins, security, bills](preview-security.png)
 
 ## Step 4 · Decide ✅ · [prompt](../prompts/04-decide.md)
 
