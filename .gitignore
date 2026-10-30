@@ -1,0 +1,8 @@
+# Your own mail data never goes in the repo
+*.private.json
+my-*.json
+my-*.html
+scans/
+decisions.json
+.DS_Store
+__pycache__/

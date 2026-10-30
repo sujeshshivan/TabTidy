@@ -1,0 +1,476 @@
+<title>Inbox Triage Board</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a mail-sorting desk. Airmail-striped header, summary strip, two charts, then the sorting table and the action plan. */
+:root {
+  --bg: #f3f5f8;
+  --surface: #ffffff;
+  --surface-2: #e9edf3;
+  --fg: #18202b;
+  --muted: #5b6676;
+  --line: #d5dbe4;
+  --accent: #1f4fd1;          /* airmail blue */
+  --accent-ink: #ffffff;
+  --stamp: #c8322b;           /* airmail red */
+  --g-promotions: #e0661b;
+  --g-newsletters: #7a52d6;
+  --g-social: #1d84c9;
+  --g-transactional: #2e9a4f;
+  --g-service: #6f7d8f;
+  --g-suspicious: #d63a3a;
+  --g-review: #c99400;
+  --g-people: #12806f;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151c; --surface: #181e27; --surface-2: #212936; --fg: #e8ecf2; --muted: #9aa5b5; --line: #2c3544;
+    --accent: #7c9cff; --accent-ink: #0d1220; --stamp: #f0625a;
+    --g-promotions: #f08a45; --g-newsletters: #a68bf0; --g-social: #5fb1e8; --g-transactional: #5cc47c;
+    --g-service: #9aa7b8; --g-suspicious: #f06a6a; --g-review: #e3b532; --g-people: #45c2ad;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151c; --surface: #181e27; --surface-2: #212936; --fg: #e8ecf2; --muted: #9aa5b5; --line: #2c3544;
+  --accent: #7c9cff; --accent-ink: #0d1220; --stamp: #f0625a;
+  --g-promotions: #f08a45; --g-newsletters: #a68bf0; --g-social: #5fb1e8; --g-transactional: #5cc47c;
+  --g-service: #9aa7b8; --g-suspicious: #f06a6a; --g-review: #e3b532; --g-people: #45c2ad;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 14px; line-height: 1.5; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 48px; }
+.airmail { height: 8px; background: repeating-linear-gradient(-45deg, var(--stamp) 0 14px, var(--bg) 14px 22px, var(--accent) 22px 36px, var(--bg) 36px 44px); }
+header.top { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: end; justify-content: space-between; padding-block: 28px 20px; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(26px, 4vw, 38px); line-height: 1.05; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+.sub { color: var(--muted); margin: 6px 0 0; }
+.sub code { font-family: var(--font-mono); font-size: 12.5px; }
+.toolbar { position: relative; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn { font: 500 13px var(--font-body); border: 1px solid var(--line); background: var(--surface); color: var(--fg); padding: 7px 12px; border-radius: 8px; cursor: pointer; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn:focus-visible, select:focus-visible, input:focus-visible, .chip:focus-visible, .bar-row:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.save-state { font: 12px var(--font-mono); color: var(--muted); }
+.save-state b { color: var(--g-transactional); font-weight: 500; }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.stat { background: var(--surface); padding: 14px 16px; display: flex; flex-direction: column; gap: 2px; }
+.stat .k { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.stat .v { font-family: var(--font-display); font-weight: 700; font-size: 30px; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.stat .d { color: var(--muted); font-size: 12.5px; }
+.stat.hl .v { color: var(--stamp); }
+@media (max-width: 520px) { .stat:last-child:nth-child(odd) { grid-column: 1 / -1; } }
+
+h2 { font-family: var(--font-display); font-weight: 700; font-size: 19px; margin: 0; }
+section { margin-top: 28px; }
+.sec-head { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+.sec-head p { margin: 0; color: var(--muted); }
+
+.charts { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 16px; }
+@media (max-width: 860px) { .charts { grid-template-columns: minmax(0, 1fr); } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; min-width: 0; }
+.panel h3 { margin: 0 0 12px; font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.bar-row { display: grid; grid-template-columns: 158px minmax(0, 1fr) 40px; gap: 10px; align-items: center; padding: 5px 6px; border-radius: 6px; cursor: pointer; border: 0; background: none; color: inherit; font: inherit; width: 100%; text-align: left; }
+.bar-row:hover, .bar-row.on { background: var(--surface-2); }
+.bar-row .lbl { display: flex; gap: 8px; align-items: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dot { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+.bar-track { height: 12px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 3px; }
+.bar-row .n { font: 500 13px var(--font-mono); text-align: right; font-variant-numeric: tabular-nums; }
+.chart-wrap { overflow-x: auto; }
+svg text { font-family: var(--font-mono); font-size: 11px; fill: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px; font-size: 12px; color: var(--muted); }
+.legend span { display: inline-flex; gap: 6px; align-items: center; }
+
+.wins { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.win { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 2px 10px; }
+.win .b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.win .e { font: 12px var(--font-mono); color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; grid-column: 1; }
+.win .c { grid-row: 1 / span 2; grid-column: 2; align-self: center; font: 700 22px var(--font-display); font-variant-numeric: tabular-nums; }
+.win.done { opacity: 0.55; }
+
+.filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
+.filters input[type="search"] { font: 14px var(--font-body); padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--fg); min-width: 0; width: 220px; max-width: 100%; }
+.chip { font: 500 12.5px var(--font-body); padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+.chip.on { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+select { font: 13px var(--font-body); padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--fg); }
+
+.table-wrap { position: relative; overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+table { width: 100%; border-collapse: collapse; min-width: 860px; }
+th, td { padding: 9px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+th { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; background: var(--surface); position: sticky; top: 0; }
+th button { all: unset; cursor: pointer; }
+th button:focus-visible { outline: 2px solid var(--accent); }
+tr:last-child td { border-bottom: 0; }
+td.sender .b { font-weight: 600; }
+td.sender .e { font: 12px var(--font-mono); color: var(--muted); }
+td.num { font: 500 13px var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.mini { display: inline-block; width: 56px; height: 6px; background: var(--surface-2); border-radius: 3px; margin-left: 8px; vertical-align: middle; overflow: hidden; }
+.mini i { display: block; height: 100%; background: var(--fg); opacity: 0.55; }
+.pill { display: inline-flex; gap: 6px; align-items: center; font-size: 12px; padding: 2px 9px 2px 7px; border-radius: 999px; background: var(--surface-2); white-space: nowrap; }
+td.why { color: var(--muted); max-width: 320px; font-size: 13px; }
+td.why .s { color: var(--fg); font-style: italic; display: block; margin-bottom: 2px; }
+td.act select.changed { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.act-unsubscribe { color: var(--stamp); }
+.empty { padding: 28px; text-align: center; color: var(--muted); }
+
+.plan { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.plan .panel { display: flex; flex-direction: column; gap: 8px; }
+.plan .ph { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.plan .ph strong { font-family: var(--font-display); font-size: 17px; }
+.plan .ph span { font: 12.5px var(--font-mono); color: var(--muted); }
+.plan p { margin: 0; color: var(--muted); font-size: 13px; }
+.plan .stripe { height: 4px; border-radius: 2px; }
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 8px 14px; border-radius: 8px; font-size: 13px; z-index: 20; }
+.foot { margin-top: 32px; color: var(--muted); font-size: 12.5px; display: flex; flex-wrap: wrap; gap: 8px 20px; justify-content: space-between; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+textarea.copybox { width: 100%; min-height: 80px; font: 12px var(--font-mono); background: var(--surface-2); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="airmail" aria-hidden="true"></div>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Inbox Triage Board</h1>
+      <p class="sub" id="subline">Loading scan…</p>
+    </div>
+    <div class="toolbar">
+      <span class="save-state" id="saveState">Decisions not saved yet</span>
+      <label class="btn" for="fileIn">Load scan JSON</label>
+      <input type="file" id="fileIn" accept="application/json,.json" class="sr">
+      <button class="btn" id="resetBtn" type="button">Reset to suggestions</button>
+    </div>
+  </header>
+
+  <div class="stats" id="stats"></div>
+
+  <section>
+    <div class="sec-head"><h2>Where the mail comes from</h2><p>Click a group to filter the sender table.</p></div>
+    <div class="charts">
+      <div class="panel"><h3>Emails per group</h3><div id="groupBars"></div></div>
+      <div class="panel"><h3>Emails per month, by group</h3><div class="chart-wrap" id="monthChart"></div><div class="legend" id="legend"></div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Quick wins</h2><p>The senders marked Unsubscribe that send you the most mail.</p></div>
+    <div class="wins" id="wins"></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Sort every sender</h2><p id="tableNote"></p></div>
+    <div class="filters">
+      <label class="sr" for="q">Search senders</label>
+      <input type="search" id="q" placeholder="Search sender or brand">
+      <div id="chips" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+      <label class="sr" for="actFilter">Filter by decision</label>
+      <select id="actFilter"><option value="">Any decision</option></select>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th><button type="button" data-sort="brand">Sender</button></th>
+          <th><button type="button" data-sort="group">Group</button></th>
+          <th><button type="button" data-sort="count">Emails ↓</button></th>
+          <th>Trend</th>
+          <th>Why / example subject</th>
+          <th>Your decision</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Action plan</h2><p>Copy a Gmail search to select these senders, or hand the decisions back to Claude.</p></div>
+    <div class="plan" id="plan"></div>
+    <div class="panel" style="margin-top:12px">
+      <div class="sec-head" style="margin-bottom:8px"><h3 style="margin:0">Decisions for Claude</h3>
+        <div class="toolbar"><button class="btn primary" id="copyJson" type="button">Copy decisions</button><button class="btn" id="dlJson" type="button" hidden>Download decisions.json</button></div></div>
+      <p style="margin:0 0 8px;color:var(--muted);font-size:13px">Paste this into Claude with prompt 05 to carry out the cleanup. Nothing in Gmail changes from this page.</p>
+      <label class="sr" for="jsonOut">Decisions JSON</label>
+      <textarea class="copybox" id="jsonOut" readonly></textarea>
+    </div>
+  </section>
+
+  <div class="foot"><span id="footMeta"></span><span>Read-only analysis. This page never touches your mailbox.</span></div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script type="application/json" id="inbox-data">/*DATA*/</script>
+<script>
+(function () {
+  const GROUPS = {
+    promotions:    { label: "Promotions / ads", color: "var(--g-promotions)" },
+    newsletters:   { label: "Newsletters", color: "var(--g-newsletters)" },
+    social:        { label: "Social notifications", color: "var(--g-social)" },
+    transactional: { label: "Transactional (keep)", color: "var(--g-transactional)" },
+    service:       { label: "Service notices", color: "var(--g-service)" },
+    suspicious:    { label: "Suspicious", color: "var(--g-suspicious)" },
+    review:        { label: "Needs review", color: "var(--g-review)" },
+    people:        { label: "Real people", color: "var(--g-people)" }
+  };
+  const ACTIONS = {
+    unsubscribe: { label: "Unsubscribe", hint: "Stop the mail at the source. Click the sender's unsubscribe link, or turn off notifications in the app.", color: "var(--stamp)" },
+    archive:     { label: "Archive", hint: "Remove from inbox. Still searchable, nothing is deleted.", color: "var(--g-service)" },
+    label:       { label: "Label, skip inbox", hint: "Keep it, but file it under a label so it stops crowding the inbox.", color: "var(--g-newsletters)" },
+    keep:        { label: "Keep in inbox", hint: "Mail that matters: security alerts, payments, support replies.", color: "var(--g-transactional)" },
+    spam:        { label: "Mark as spam", hint: "For suspicious senders. Never click their unsubscribe links.", color: "var(--g-suspicious)" }
+  };
+  const CUT = new Set(["unsubscribe", "archive", "spam"]);
+  const LS_KEY = "inbox-triage-decisions";
+
+  let data = JSON.parse(document.getElementById("inbox-data").textContent);
+  let decisions = {};          // email -> action (user overrides)
+  let db = null;
+  const ui = { q: "", group: "", act: "", sort: "count", dir: -1 };
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const fmt = (n) => n.toLocaleString();
+  const decisionOf = (s) => decisions[s.email] || s.action;
+  const docId = (email) => email.replace(/[^A-Za-z0-9_\-.~:@+]/g, "_").replace(/^\.+$/, "_");
+
+  function toast(msg) { const t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), 2200); }
+
+  function lsLoad() { try { return JSON.parse(localStorage.getItem(LS_KEY) || "{}"); } catch (e) { return {}; } }
+  function lsSave() { try { localStorage.setItem(LS_KEY, JSON.stringify(decisions)); return true; } catch (e) { return false; } }
+
+  function setSaveState(where) {
+    const n = Object.keys(decisions).length;
+    $("saveState").innerHTML = n ? `<b>●</b> ${n} change${n === 1 ? "" : "s"} saved ${esc(where)}` : `Showing Claude's suggestions`;
+  }
+
+  async function persist(email, action) {
+    const suggested = (data.senders.find((s) => s.email === email) || {}).action;
+    if (action === suggested) delete decisions[email]; else decisions[email] = action;
+    if (db) {
+      try {
+        const ref = db.doc("decisions/" + docId(email));
+        if (action === suggested) await ref.delete(); else await ref.set({ email, action, updated: new Date().toISOString() });
+        setSaveState("to this dashboard");
+        return;
+      } catch (e) { /* fall through to browser storage */ }
+    }
+    setSaveState(lsSave() ? "in this browser" : "for this visit only");
+  }
+
+  function renderStats() {
+    const S = data.senders, m = data.meta || {};
+    const total = S.reduce((a, s) => a + s.count, 0);
+    const people = S.filter((s) => s.group === "people").reduce((a, s) => a + s.count, 0);
+    const cut = S.filter((s) => CUT.has(decisionOf(s))).reduce((a, s) => a + s.count, 0);
+    const unread = m.unread_threads;
+    const months = (m.months || []).length || 1;
+    const items = [
+      { k: "Emails scanned", v: fmt(total), d: `${fmt(Math.round(total / months))} a month on average` },
+      { k: "Different senders", v: fmt(S.length), d: `${S.filter((s) => s.count >= 5).length} sent 5 or more` },
+      unread != null ? { k: "Never opened", v: Math.round((unread / total) * 100) + "%", d: `${fmt(unread)} of ${fmt(total)} still unread` } : null,
+      { k: "From real people", v: fmt(people), d: people ? "worth protecting" : "everything here is automated" },
+      { k: "Cut by your plan", v: Math.round((cut / Math.max(total, 1)) * 100) + "%", d: `${fmt(cut)} emails from senders you'd stop or archive`, hl: true }
+    ].filter(Boolean);
+    $("stats").innerHTML = items.map((i) => `<div class="stat${i.hl ? " hl" : ""}"><span class="k">${i.k}</span><span class="v">${i.v}</span><span class="d">${i.d}</span></div>`).join("");
+  }
+
+  function groupTotals() {
+    const t = {};
+    data.senders.forEach((s) => (t[s.group] = (t[s.group] || 0) + s.count));
+    return Object.entries(t).sort((a, b) => b[1] - a[1]);
+  }
+
+  function renderGroupBars() {
+    const gt = groupTotals(), max = gt.length ? gt[0][1] : 1;
+    $("groupBars").innerHTML = gt.map(([g, n]) => {
+      const G = GROUPS[g] || { label: g, color: "var(--muted)" };
+      return `<button type="button" class="bar-row${ui.group === g ? " on" : ""}" data-g="${esc(g)}" aria-pressed="${ui.group === g}">
+        <span class="lbl"><span class="dot" style="background:${G.color}"></span>${esc(G.label)}</span>
+        <span class="bar-track"><span class="bar-fill" style="display:block;width:${(n / max) * 100}%;background:${G.color}"></span></span>
+        <span class="n">${n}</span></button>`;
+    }).join("");
+    $("groupBars").querySelectorAll(".bar-row").forEach((b) => b.addEventListener("click", () => { ui.group = ui.group === b.dataset.g ? "" : b.dataset.g; renderAll(); }));
+  }
+
+  function renderMonthChart() {
+    const months = (data.meta && data.meta.months) || [];
+    if (!months.length) { $("monthChart").innerHTML = '<p class="empty">No monthly breakdown in this scan.</p>'; return; }
+    const order = groupTotals().map(([g]) => g);
+    const stacks = months.map((_, i) => order.map((g) => data.senders.filter((s) => s.group === g).reduce((a, s) => a + ((s.by_month || [])[i] || 0), 0)));
+    const totals = stacks.map((st) => st.reduce((a, b) => a + b, 0));
+    const max = Math.max(...totals, 1);
+    const step = max > 80 ? 20 : max > 40 ? 10 : 5, top = Math.ceil(max / step) * step;
+    const W = 600, H = 240, L = 36, R = 8, T = 18, B = 26, iw = W - L - R, ih = H - T - B;
+    const bw = (iw / months.length) * 0.6, gap = iw / months.length;
+    const y = (v) => T + ih - (v / top) * ih;
+    let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Emails per month stacked by group">`;
+    for (let v = 0; v <= top; v += step) svg += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`;
+    months.forEach((mo, i) => {
+      const x = L + gap * i + (gap - bw) / 2; let acc = 0;
+      order.forEach((g, k) => {
+        const v = stacks[i][k]; if (!v) return;
+        const G = GROUPS[g] || { color: "var(--muted)" };
+        svg += `<rect x="${x}" y="${y(acc + v)}" width="${bw}" height="${y(acc) - y(acc + v)}" fill="${G.color}"${ui.group && ui.group !== g ? ' opacity="0.25"' : ""}><title>${esc((GROUPS[g] || {}).label || g)}: ${v}</title></rect>`;
+        acc += v;
+      });
+      const label = new Date(mo + "-01T00:00:00").toLocaleString(undefined, { month: "short" });
+      svg += `<text x="${x + bw / 2}" y="${y(totals[i]) - 5}" text-anchor="middle" style="fill:var(--fg)">${totals[i]}</text><text x="${x + bw / 2}" y="${H - 8}" text-anchor="middle">${label}</text>`;
+    });
+    $("monthChart").innerHTML = svg + "</svg>";
+    $("legend").innerHTML = order.map((g) => `<span><span class="dot" style="background:${(GROUPS[g] || {}).color || "var(--muted)"}"></span>${esc((GROUPS[g] || {}).label || g)}</span>`).join("");
+  }
+
+  function renderWins() {
+    const w = data.senders.filter((s) => s.action === "unsubscribe").sort((a, b) => b.count - a.count).slice(0, 8);
+    $("wins").innerHTML = w.length ? w.map((s) => `<div class="win${decisionOf(s) !== "unsubscribe" ? " done" : ""}"><span class="b">${esc(s.brand)}</span><span class="c">${s.count}</span><span class="e">${esc(s.email)}</span></div>`).join("") : '<p class="empty">No unsubscribe candidates in this scan.</p>';
+  }
+
+  function spark(arr) {
+    if (!arr || !arr.length) return "";
+    const max = Math.max(...arr, 1), w = 72, h = 20, st = w / Math.max(arr.length - 1, 1);
+    const pts = arr.map((v, i) => `${(i * st).toFixed(1)},${(h - 2 - (v / max) * (h - 4)).toFixed(1)}`).join(" ");
+    const last = pts.split(" ").pop().split(",");
+    return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-label="Monthly: ${arr.join(", ")}"><polyline points="${pts}" fill="none" stroke="var(--muted)" stroke-width="1.5"/><circle cx="${last[0]}" cy="${last[1]}" r="2.5" fill="var(--fg)"/></svg>`;
+  }
+
+  function filtered() {
+    const q = ui.q.trim().toLowerCase();
+    let list = data.senders.filter((s) =>
+      (!ui.group || s.group === ui.group) &&
+      (!ui.act || decisionOf(s) === ui.act) &&
+      (!q || (s.email + " " + s.brand + " " + (s.sample_subject || "")).toLowerCase().includes(q)));
+    const k = ui.sort;
+    list.sort((a, b) => (k === "count" ? (a.count - b.count) * ui.dir : String(a[k]).localeCompare(String(b[k])) * ui.dir) || b.count - a.count);
+    return list;
+  }
+
+  function renderChips() {
+    const present = new Set(data.senders.map((s) => s.group));
+    $("chips").innerHTML = [`<button type="button" class="chip${!ui.group ? " on" : ""}" data-g="">All groups</button>`]
+      .concat(Object.keys(GROUPS).filter((g) => present.has(g)).map((g) => `<button type="button" class="chip${ui.group === g ? " on" : ""}" data-g="${g}"><span class="dot" style="background:${GROUPS[g].color}"></span>${GROUPS[g].label}</button>`)).join("");
+    $("chips").querySelectorAll(".chip").forEach((c) => c.addEventListener("click", () => { ui.group = c.dataset.g; renderAll(); }));
+  }
+
+  function renderRows() {
+    const list = filtered(), max = Math.max(...data.senders.map((s) => s.count), 1);
+    $("tableNote").textContent = `${list.length} of ${data.senders.length} senders shown. Changes save as you pick.`;
+    if (!list.length) { $("rows").innerHTML = `<tr><td colspan="6" class="empty">No senders match. Clear the search or pick another group.</td></tr>`; return; }
+    $("rows").innerHTML = list.map((s, i) => {
+      const G = GROUPS[s.group] || { label: s.group, color: "var(--muted)" }, d = decisionOf(s), id = "act-" + i;
+      return `<tr>
+        <td class="sender"><div class="b">${esc(s.brand)}</div><div class="e">${esc(s.email)}</div></td>
+        <td><span class="pill"><span class="dot" style="background:${G.color}"></span>${esc(G.label)}</span></td>
+        <td class="num">${s.count}<span class="mini"><i style="width:${(s.count / max) * 100}%"></i></span></td>
+        <td>${spark(s.by_month)}</td>
+        <td class="why">${s.sample_subject ? `<span class="s">“${esc(s.sample_subject)}”</span>` : ""}${esc(s.reason || "")}</td>
+        <td class="act"><label class="sr" for="${id}">Decision for ${esc(s.email)}</label>
+          <select id="${id}" data-email="${esc(s.email)}" class="${d !== s.action ? "changed" : ""} act-${d}">
+            ${Object.entries(ACTIONS).map(([k, a]) => `<option value="${k}"${k === d ? " selected" : ""}>${a.label}${k === s.action ? " (suggested)" : ""}</option>`).join("")}
+          </select></td></tr>`;
+    }).join("");
+    $("rows").querySelectorAll("select").forEach((sel) => sel.addEventListener("change", async () => {
+      await persist(sel.dataset.email, sel.value);
+      renderStats(); renderWins(); renderPlan(); renderRows();
+    }));
+  }
+
+  function gmailQuery(list) {
+    const doms = {};
+    list.forEach((s) => (doms[s.email] = 1));
+    return "from:(" + Object.keys(doms).join(" OR ") + ")";
+  }
+
+  function decisionsPayload() {
+    const by = {};
+    data.senders.forEach((s) => { const d = decisionOf(s); (by[d] = by[d] || []).push({ email: s.email, brand: s.brand, group: s.group, emails: s.count, changed_from_suggestion: d !== s.action }); });
+    return { source: "inbox-triage-dashboard", scanned_on: (data.meta || {}).scanned_on, range: [(data.meta || {}).range_from, (data.meta || {}).range_to], decisions: by };
+  }
+
+  function renderPlan() {
+    $("plan").innerHTML = Object.entries(ACTIONS).map(([k, a]) => {
+      const list = data.senders.filter((s) => decisionOf(s) === k);
+      if (!list.length) return "";
+      const n = list.reduce((x, s) => x + s.count, 0);
+      return `<div class="panel"><div class="stripe" style="background:${a.color}"></div>
+        <div class="ph"><strong>${a.label}</strong><span>${list.length} senders · ${n} emails</span></div>
+        <p>${a.hint}</p>
+        <div class="toolbar"><button class="btn" type="button" data-copyq="${k}">Copy Gmail search</button></div></div>`;
+    }).join("");
+    $("plan").querySelectorAll("[data-copyq]").forEach((b) => b.addEventListener("click", () => copy(gmailQuery(data.senders.filter((s) => decisionOf(s) === b.dataset.copyq)), "Gmail search copied. Paste it into Gmail's search bar.")));
+    $("jsonOut").value = JSON.stringify(decisionsPayload(), null, 2);
+  }
+
+  async function copy(text, msg) {
+    try { await navigator.clipboard.writeText(text); toast(msg); }
+    catch (e) { const t = $("jsonOut"); t.value = text; t.focus(); t.select(); toast("Selected below. Press Ctrl+C or ⌘C to copy."); }
+  }
+
+  function renderHeader() {
+    const m = data.meta || {};
+    $("subline").innerHTML = `${m.label ? `<code>${esc(m.label)}</code> · ` : ""}${m.range_from ? `${esc(m.range_from)} to ${esc(m.range_to)}` : ""}${m.sample ? " · <strong>Sample data</strong>, load your own scan to begin" : ""}`;
+    const tabs = m.gmail_tabs ? " · Gmail tabs: " + Object.entries(m.gmail_tabs).map(([k, v]) => `${k} ${v}`).join(", ") : "";
+    $("footMeta").textContent = (m.notes || "") + tabs;
+  }
+
+  function renderAll() { renderHeader(); renderStats(); renderGroupBars(); renderMonthChart(); renderWins(); renderChips(); renderRows(); renderPlan(); }
+
+  // Controls
+  $("q").addEventListener("input", (e) => { ui.q = e.target.value; renderRows(); });
+  const af = $("actFilter");
+  Object.entries(ACTIONS).forEach(([k, a]) => af.insertAdjacentHTML("beforeend", `<option value="${k}">${a.label}</option>`));
+  af.addEventListener("change", () => { ui.act = af.value; renderRows(); });
+  document.querySelectorAll("th [data-sort]").forEach((b) => b.addEventListener("click", () => {
+    const k = b.dataset.sort; ui.dir = ui.sort === k ? -ui.dir : (k === "count" ? -1 : 1); ui.sort = k; renderRows();
+  }));
+  $("copyJson").addEventListener("click", () => copy($("jsonOut").value, "Decisions copied. Paste them into Claude with prompt 05."));
+  $("resetBtn").addEventListener("click", async () => {
+    const emails = Object.keys(decisions);
+    for (const e of emails) { const s = data.senders.find((x) => x.email === e); if (s) await persist(e, s.action); }
+    decisions = {}; lsSave(); setSaveState(""); renderAll(); toast("Back to Claude's suggestions");
+  });
+  $("fileIn").addEventListener("change", (e) => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try {
+        const d = JSON.parse(r.result);
+        if (!Array.isArray(d.senders)) throw new Error("missing senders");
+        data = d; renderAll(); toast(`Loaded ${d.senders.length} senders from ${f.name}`);
+      } catch (err) { toast("That file isn't a scan in the dashboard format. See docs/data-schema.md."); }
+    };
+    r.readAsText(f);
+  });
+
+  // Start with browser-saved decisions, then upgrade to the shared store when it answers.
+  decisions = lsLoad();
+  setSaveState(Object.keys(decisions).length ? "in this browser" : "");
+  renderAll();
+
+  if (!window.claude) {
+    // Standalone (e.g. opened from the GitHub repo): offer a real file download.
+    const dl = $("dlJson"); dl.hidden = false;
+    dl.addEventListener("click", () => {
+      const blob = new Blob([$("jsonOut").value], { type: "application/json" });
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "decisions.json"; a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    });
+  } else if (window.claude.use) {
+    window.claude.use("db").then((store) => {
+      if (!store) return;
+      db = store;
+      db.collection("decisions").onSnapshot((snap) => {
+        const next = {};
+        snap.docs.forEach((d) => { const v = d.data(); if (v && v.email && v.action) next[v.email] = v.action; });
+        decisions = next;
+        setSaveState("to this dashboard");
+        renderStats(); renderWins(); renderPlan(); renderRows();
+      }, () => { db = null; });
+    });
+  }
+})();
+</script>

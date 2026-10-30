@@ -1,0 +1,298 @@
+{
+ "meta": {
+  "label": "sample inbox",
+  "sample": true,
+  "range_from": "2026-05-01",
+  "range_to": "2026-10-31",
+  "scanned_on": "2026-10-31",
+  "total_threads": 335,
+  "unread_threads": 278,
+  "months": [
+   "2026-05",
+   "2026-06",
+   "2026-07",
+   "2026-08",
+   "2026-09",
+   "2026-10"
+  ],
+  "gmail_tabs": {
+   "Promotions": 180,
+   "Updates": 61,
+   "Social": 64,
+   "Primary": 21
+  },
+  "notes": "Fictional sample data (.example domains)."
+ },
+ "senders": [
+  {
+   "email": "deals@mail.shopwave.example",
+   "domain": "mail.shopwave.example",
+   "brand": "Shopwave",
+   "count": 88,
+   "by_month": [
+    14,
+    12,
+    15,
+    13,
+    16,
+    18
+   ],
+   "group": "promotions",
+   "action": "unsubscribe",
+   "reason": "Daily deal blasts.",
+   "sample_subject": "Flash sale: 70% off ends tonight"
+  },
+  {
+   "email": "notify@friendspace.example",
+   "domain": "friendspace.example",
+   "brand": "FriendSpace",
+   "count": 60,
+   "by_month": [
+    10,
+    9,
+    11,
+    8,
+    12,
+    10
+   ],
+   "group": "social",
+   "action": "unsubscribe",
+   "reason": "Activity digests. Turn off email alerts in the app settings.",
+   "sample_subject": "You have 4 new notifications"
+  },
+  {
+   "email": "news@pixelstudio.example",
+   "domain": "pixelstudio.example",
+   "brand": "PixelStudio",
+   "count": 35,
+   "by_month": [
+    6,
+    5,
+    6,
+    7,
+    5,
+    6
+   ],
+   "group": "promotions",
+   "action": "unsubscribe",
+   "reason": "Product marketing.",
+   "sample_subject": "New brushes are here"
+  },
+  {
+   "email": "hello@weeklybyte.example",
+   "domain": "weeklybyte.example",
+   "brand": "The Weekly Byte",
+   "count": 25,
+   "by_month": [
+    4,
+    4,
+    5,
+    4,
+    4,
+    4
+   ],
+   "group": "newsletters",
+   "action": "label",
+   "reason": "Newsletter you sometimes read. Label and skip the inbox.",
+   "sample_subject": "Issue #112: what shipped this week"
+  },
+  {
+   "email": "nudge@codecamp.example",
+   "domain": "codecamp.example",
+   "brand": "CodeCamp",
+   "count": 24,
+   "by_month": [
+    8,
+    6,
+    4,
+    3,
+    2,
+    1
+   ],
+   "group": "promotions",
+   "action": "unsubscribe",
+   "reason": "Re-engagement nudges.",
+   "sample_subject": "Your first lesson misses you"
+  },
+  {
+   "email": "digest@marketdigest.example",
+   "domain": "marketdigest.example",
+   "brand": "Market Digest",
+   "count": 24,
+   "by_month": [
+    4,
+    4,
+    4,
+    4,
+    4,
+    4
+   ],
+   "group": "newsletters",
+   "action": "unsubscribe",
+   "reason": "Weekly finance newsletter.",
+   "sample_subject": "Five charts for the week"
+  },
+  {
+   "email": "offers@travelgo.example",
+   "domain": "travelgo.example",
+   "brand": "TravelGo",
+   "count": 22,
+   "by_month": [
+    3,
+    5,
+    6,
+    4,
+    2,
+    2
+   ],
+   "group": "promotions",
+   "action": "unsubscribe",
+   "reason": "Travel deals.",
+   "sample_subject": "Weekend getaways from RM199"
+  },
+  {
+   "email": "alerts@examplebank.example",
+   "domain": "examplebank.example",
+   "brand": "Example Bank",
+   "count": 18,
+   "by_month": [
+    3,
+    3,
+    2,
+    3,
+    3,
+    4
+   ],
+   "group": "transactional",
+   "action": "keep",
+   "reason": "Account alerts. Always keep.",
+   "sample_subject": "Your statement is ready"
+  },
+  {
+   "email": "jamie.lee@friendmail.example",
+   "domain": "friendmail.example",
+   "brand": "Jamie Lee",
+   "count": 11,
+   "by_month": [
+    2,
+    1,
+    3,
+    1,
+    2,
+    2
+   ],
+   "group": "people",
+   "action": "keep",
+   "reason": "A real person.",
+   "sample_subject": "Dinner on Saturday?"
+  },
+  {
+   "email": "winner@prize-centre.example",
+   "domain": "prize-centre.example",
+   "brand": "Prize Center",
+   "count": 7,
+   "by_month": [
+    0,
+    1,
+    2,
+    1,
+    2,
+    1
+   ],
+   "group": "suspicious",
+   "action": "spam",
+   "reason": "Look-alike brand and prize bait. Mark as spam; never click links.",
+   "sample_subject": "Congratulations! Claim your reward"
+  },
+  {
+   "email": "billing@cloudbox.example",
+   "domain": "cloudbox.example",
+   "brand": "CloudBox",
+   "count": 6,
+   "by_month": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "group": "transactional",
+   "action": "label",
+   "reason": "Monthly receipts. Label as Receipts.",
+   "sample_subject": "Your receipt for October"
+  },
+  {
+   "email": "policy@appstore.example",
+   "domain": "appstore.example",
+   "brand": "AppStore",
+   "count": 6,
+   "by_month": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "group": "service",
+   "action": "archive",
+   "reason": "Policy reminders.",
+   "sample_subject": "Quarterly reminder about our terms"
+  },
+  {
+   "email": "no-reply@accounts.example",
+   "domain": "accounts.example",
+   "brand": "Account Security",
+   "count": 5,
+   "by_month": [
+    1,
+    0,
+    2,
+    1,
+    0,
+    1
+   ],
+   "group": "transactional",
+   "action": "keep",
+   "reason": "Sign-in and security alerts.",
+   "sample_subject": "New sign-in on Windows"
+  },
+  {
+   "email": "support@saasapp.example",
+   "domain": "saasapp.example",
+   "brand": "HelpDesk",
+   "count": 2,
+   "by_month": [
+    0,
+    1,
+    0,
+    0,
+    1,
+    0
+   ],
+   "group": "service",
+   "action": "keep",
+   "reason": "Support replies.",
+   "sample_subject": "Re: your ticket #4821"
+  },
+  {
+   "email": "noreply@codehost.example",
+   "domain": "codehost.example",
+   "brand": "Other Account",
+   "count": 2,
+   "by_month": [
+    0,
+    1,
+    1,
+    0,
+    0,
+    0
+   ],
+   "group": "review",
+   "action": "keep",
+   "reason": "Addressed to a different email address. Check why it reaches you.",
+   "sample_subject": "A third-party app was added to your account"
+  }
+ ]
+}
