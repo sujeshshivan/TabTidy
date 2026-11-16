@@ -1,0 +1,144 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns='http://www.w3.org/2005/Atom' xmlns:apps='http://schemas.google.com/apps/2006'>
+<title>TabTidy filters: labels.xml</title>
+<!-- Receipts and invoices -->
+<entry>
+<category term='filter'></category>
+<title>Mail Filter</title>
+<content></content>
+<apps:property name='hasTheWord' value='subject:(receipt OR invoice OR resit OR "payment received" OR "payment successful" OR "payment confirmation" OR "transaction alert" OR "e-statement" OR "your bill" OR "bill is ready" OR refund)'/>
+<apps:property name='label' value="Bills &amp; Receipts"/>
+<apps:property name='sizeOperator' value='s_sl'/>
+<apps:property name='sizeUnit' value='s_smb'/>
+</entry>
+<!-- Banks and e-wallets -->
+<entry>
+<category term='filter'></category>
+<title>Mail Filter</title>
+<content></content>
+<apps:property name='hasTheWord' value="from:(maybank2u.com.my OR maybank.com OR cimb.com OR cimbclicks.com.my OR pbebank.com OR publicbank.com.my OR rhbgroup.com OR hlb.com.my OR ambankgroup.com OR bankislam.com.my OR bsn.com.my OR uob.com.my OR ocbc.com.my OR hsbc.com.my OR affinbank.com.my OR alliancebank.com.my OR bankrakyat.com.my OR tngdigital.com.my OR boost.com.my OR grabpay.com OR paypal.com OR wise.com OR stripe.com OR gxbank.my OR bigpay.my OR revolut.com) -subject:(promo OR offer OR deal OR cashback OR win OR contest OR reward)"/>
+<apps:property name='label' value="Bills &amp; Receipts"/>
+<apps:property name='sizeOperator' value='s_sl'/>
+<apps:property name='sizeUnit' value='s_smb'/>
+</entry>
+<!-- Utilities, telco and TV -->
+<entry>
+<category term='filter'></category>
+<title>Mail Filter</title>
+<content></content>
+<apps:property name='hasTheWord' value="from:(tnb.com.my OR mytnb.com.my OR unifi.com.my OR tm.com.my OR celcomdigi.com OR maxis.com.my OR u.com.my OR yes.my OR astro.com.my OR airselangor.com OR indahwater.com) -subject:(promo OR offer OR deal OR cashback OR win OR contest OR reward)"/>
+<apps:property name='label' value="Bills &amp; Receipts"/>
+<apps:property name='sizeOperator' value='s_sl'/>
+<apps:property name='sizeUnit' value='s_smb'/>
+</entry>
+<!-- Subscriptions and plans -->
+<entry>
+<category term='filter'></category>
+<title>Mail Filter</title>
+<content></content>
+<apps:property name='hasTheWord' value='subject:(subscription OR renewal OR "auto-renew" OR "your plan" OR "new plan" OR "pro plan" OR "premium plan" OR "trial ends" OR "trial ending" OR "has ended" OR cancellation OR membership) -subject:(sale OR discount OR "% off")'/>
+<apps:property name='label' value="Subscriptions"/>
+<apps:property name='sizeOperator' value='s_sl'/>
+<apps:property name='sizeUnit' value='s_smb'/>
+</entry>
+<!-- Orders and deliveries -->
+<entry>
+<category term='filter'></category>
+<title>Mail Filter</title>
+<content></content>
+<apps:property name='hasTheWord' value='from:(pos.com.my OR poslaju.com.my OR jtexpress.my OR ninjavan.co OR dhl.com OR fedex.com OR ups.com OR usps.com OR royalmail.com OR citylinkexpress.com OR gdexpress.com OR spx.com.my OR flashexpress.my OR lalamove.com OR skynet.com.my) OR subject:("order confirmation" OR "order confirmed" OR "your order" OR "thank you for your order" OR shipped OR "out for delivery" OR delivered OR "tracking number" OR "on its way" OR parcel OR "ready for pickup" OR penghantaran)'/>
+<apps:property name='label' value="Orders &amp; Deliveries"/>
+<apps:property name='sizeOperator' value='s_sl'/>
+<apps:property name='sizeUnit' value='s_smb'/>
+</entry>
+<!-- Travel bookings -->
+<entry>
+<category term='filter'></category>
+<title>Mail Filter</title>
+<content></content>
+<apps:property name='hasTheWord' value='from:(airasia.com OR malaysiaairlines.com OR batikair.com OR singaporeair.com OR emirates.com OR qatarairways.com OR booking.com OR agoda.com OR traveloka.com OR trip.com OR klook.com OR expedia.com OR airbnb.com OR ktmb.com.my OR easybook.com) subject:("booking confirmation" OR "booking confirmed" OR "your booking" OR "e-ticket" OR itinerary OR "boarding pass" OR reservation OR tempahan)'/>
+<apps:property name='label' value="Travel &amp; Bookings"/>
+<apps:property name='sizeOperator' value='s_sl'/>
+<apps:property name='sizeUnit' value='s_smb'/>
+</entry>
+<!-- Travel bookings (any sender) -->
+<entry>
+<category term='filter'></category>
+<title>Mail Filter</title>
+<content></content>
+<apps:property name='hasTheWord' value='subject:("booking confirmation" OR "booking confirmed" OR "your booking" OR "e-ticket" OR itinerary OR "boarding pass") -subject:(sale OR deal OR promo OR offer)'/>
+<apps:property name='label' value="Travel &amp; Bookings"/>
+<apps:property name='sizeOperator' value='s_sl'/>
+<apps:property name='sizeUnit' value='s_smb'/>
+</entry>
+<!-- Jobs -->
+<entry>
+<category term='filter'></category>
+<title>Mail Filter</title>
+<content></content>
+<apps:property name='hasTheWord' value='from:(jobstreet.com OR indeed.com OR glassdoor.com OR hiredly.com OR maukerja.my OR jobs-noreply@linkedin.com OR jobalerts-noreply@linkedin.com OR myworkday.com OR greenhouse.io OR lever.co) OR subject:("job alert" OR "jobs for you" OR "new jobs" OR "application received" OR "your application")'/>
+<apps:property name='label' value="Jobs"/>
+<apps:property name='sizeOperator' value='s_sl'/>
+<apps:property name='sizeUnit' value='s_smb'/>
+</entry>
+<!-- Social networks -->
+<entry>
+<category term='filter'></category>
+<title>Mail Filter</title>
+<content></content>
+<apps:property name='hasTheWord' value='from:(facebookmail.com OR instagram.com OR linkedin.com OR x.com OR twitter.com OR tiktok.com OR pinterest.com OR redditmail.com OR quora.com OR discord.com OR snapchat.com OR threads.net OR youtube.com OR telegram.org OR tumblr.com OR meetup.com) -from:(security@facebookmail.com OR registration@facebookmail.com OR security@mail.instagram.com OR security-noreply@linkedin.com) -subject:("security alert" OR "verification code" OR OTP OR TAC OR "one-time" OR "one time password" OR "new sign-in" OR "sign-in attempt" OR "new login" OR "login alert")'/>
+<apps:property name='label' value="Social"/>
+<apps:property name='sizeOperator' value='s_sl'/>
+<apps:property name='sizeUnit' value='s_smb'/>
+</entry>
+<!-- Newsletters -->
+<entry>
+<category term='filter'></category>
+<title>Mail Filter</title>
+<content></content>
+<apps:property name='hasTheWord' value='from:(substack.com OR beehiiv.com OR medium.com OR mailchimp.com OR convertkit.com OR ghost.io OR buttondown.email) OR subject:(newsletter OR digest OR "weekly roundup" OR "this week in" OR "monthly update")'/>
+<apps:property name='label' value="Newsletters"/>
+<apps:property name='sizeOperator' value='s_sl'/>
+<apps:property name='sizeUnit' value='s_smb'/>
+</entry>
+<!-- App, cloud and policy notices -->
+<entry>
+<category term='filter'></category>
+<title>Mail Filter</title>
+<content></content>
+<apps:property name='hasTheWord' value='from:(github.com OR gitlab.com OR bitbucket.org OR vercel.com OR netlify.com OR render.com OR railway.app OR heroku.com OR supabase.com OR firebase.google.com OR amazonaws.com OR aws.amazon.com OR azure.microsoft.com OR cloudflare.com OR digitalocean.com OR docker.com OR npmjs.com OR sentry.io OR atlassian.com OR slack.com OR notion.so OR zoom.us OR dropbox.com) -subject:("security alert" OR "verification code" OR OTP OR TAC OR "one-time" OR "one time password" OR "new sign-in" OR "sign-in attempt" OR "new login" OR "login alert")'/>
+<apps:property name='label' value="Notices"/>
+<apps:property name='sizeOperator' value='s_sl'/>
+<apps:property name='sizeUnit' value='s_smb'/>
+</entry>
+<!-- Policy and maintenance notices -->
+<entry>
+<category term='filter'></category>
+<title>Mail Filter</title>
+<content></content>
+<apps:property name='hasTheWord' value='subject:("terms of service" OR "privacy policy" OR "policy update" OR "updates to our terms" OR "scheduled maintenance")'/>
+<apps:property name='label' value="Notices"/>
+<apps:property name='sizeOperator' value='s_sl'/>
+<apps:property name='sizeUnit' value='s_smb'/>
+</entry>
+<!-- Ads by wording (only mass mail) -->
+<entry>
+<category term='filter'></category>
+<title>Mail Filter</title>
+<content></content>
+<apps:property name='hasTheWord' value='unsubscribe subject:("% off" OR sale OR "flash sale" OR deal OR deals OR discount OR voucher OR coupon OR promo OR "limited time" OR "last chance" OR "ends tonight" OR "free shipping" OR cashback OR "exclusive offer" OR "special offer" OR giveaway OR "we miss you" OR "misses you" OR jualan OR diskaun OR baucar OR tawaran) -subject:(receipt OR invoice OR order OR booking OR statement OR OTP OR TAC)'/>
+<apps:property name='label' value="Ads &amp; Promotions"/>
+<apps:property name='sizeOperator' value='s_sl'/>
+<apps:property name='sizeUnit' value='s_smb'/>
+</entry>
+<!-- Shop and marketplace promos -->
+<entry>
+<category term='filter'></category>
+<title>Mail Filter</title>
+<content></content>
+<apps:property name='hasTheWord' value="from:(shopee.com.my OR shopee.com OR lazada.com.my OR zalora.com.my OR temu.com OR shein.com OR aliexpress.com OR amazon.com OR ebay.com OR taobao.com OR carousell.com OR grab.com OR foodpanda.my OR shopback.my) -subject:(receipt OR invoice OR order OR booking OR statement OR OTP OR TAC) -subject:(shipped OR delivered OR refund)"/>
+<apps:property name='label' value="Ads &amp; Promotions"/>
+<apps:property name='sizeOperator' value='s_sl'/>
+<apps:property name='sizeUnit' value='s_smb'/>
+</entry>
+</feed>

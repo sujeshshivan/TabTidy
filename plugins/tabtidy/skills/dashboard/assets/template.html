@@ -1,0 +1,844 @@
+<title>Inbox Triage Board</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a mail-sorting desk. Airmail-striped header, summary strip, two charts, then the sorting table and the action plan. */
+:root {
+  --bg: #f3f5f8;
+  --surface: #ffffff;
+  --surface-2: #e9edf3;
+  --fg: #18202b;
+  --muted: #5b6676;
+  --line: #d5dbe4;
+  --accent: #1f4fd1;          /* airmail blue */
+  --accent-ink: #ffffff;
+  --stamp: #c8322b;           /* airmail red */
+  --g-promotions: #e0661b;
+  --g-newsletters: #7a52d6;
+  --g-social: #1d84c9;
+  --g-transactional: #2e9a4f;
+  --g-service: #6f7d8f;
+  --g-suspicious: #d63a3a;
+  --g-review: #c99400;
+  --g-people: #12806f;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151c; --surface: #181e27; --surface-2: #212936; --fg: #e8ecf2; --muted: #9aa5b5; --line: #2c3544;
+    --accent: #7c9cff; --accent-ink: #0d1220; --stamp: #f0625a;
+    --g-promotions: #f08a45; --g-newsletters: #a68bf0; --g-social: #5fb1e8; --g-transactional: #5cc47c;
+    --g-service: #9aa7b8; --g-suspicious: #f06a6a; --g-review: #e3b532; --g-people: #45c2ad;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151c; --surface: #181e27; --surface-2: #212936; --fg: #e8ecf2; --muted: #9aa5b5; --line: #2c3544;
+  --accent: #7c9cff; --accent-ink: #0d1220; --stamp: #f0625a;
+  --g-promotions: #f08a45; --g-newsletters: #a68bf0; --g-social: #5fb1e8; --g-transactional: #5cc47c;
+  --g-service: #9aa7b8; --g-suspicious: #f06a6a; --g-review: #e3b532; --g-people: #45c2ad;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 14px; line-height: 1.5; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 48px; }
+.airmail { height: 8px; background: repeating-linear-gradient(-45deg, var(--stamp) 0 14px, var(--bg) 14px 22px, var(--accent) 22px 36px, var(--bg) 36px 44px); }
+header.top { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: end; justify-content: space-between; padding-block: 28px 20px; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(26px, 4vw, 38px); line-height: 1.05; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+.sub { color: var(--muted); margin: 6px 0 0; }
+.sub code { font-family: var(--font-mono); font-size: 12.5px; }
+.toolbar { position: relative; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn { font: 500 13px var(--font-body); border: 1px solid var(--line); background: var(--surface); color: var(--fg); padding: 7px 12px; border-radius: 8px; cursor: pointer; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn:focus-visible, select:focus-visible, input:focus-visible, .chip:focus-visible, .bar-row:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.save-state { font: 12px var(--font-mono); color: var(--muted); }
+.save-state b { color: var(--g-transactional); font-weight: 500; }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.stat { background: var(--surface); padding: 14px 16px; display: flex; flex-direction: column; gap: 2px; }
+.stat .k { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.stat .v { font-family: var(--font-display); font-weight: 700; font-size: 30px; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.stat .d { color: var(--muted); font-size: 12.5px; }
+.stat.hl .v { color: var(--stamp); }
+@media (max-width: 520px) { .stat:last-child:nth-child(odd) { grid-column: 1 / -1; } }
+
+h2 { font-family: var(--font-display); font-weight: 700; font-size: 19px; margin: 0; }
+section { margin-top: 28px; }
+.sec-head { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+.sec-head p { margin: 0; color: var(--muted); }
+
+.charts { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 16px; }
+@media (max-width: 860px) { .charts { grid-template-columns: minmax(0, 1fr); } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; min-width: 0; }
+.panel h3 { margin: 0 0 12px; font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.bar-row { display: grid; grid-template-columns: 172px minmax(0, 1fr) 40px; gap: 10px; align-items: center; padding: 5px 6px; border-radius: 6px; cursor: pointer; border: 0; background: none; color: inherit; font: inherit; width: 100%; text-align: left; }
+.bar-row:hover, .bar-row.on { background: var(--surface-2); }
+.bar-row .lbl { display: flex; gap: 8px; align-items: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dot { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+.bar-track { height: 12px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 3px; }
+.bar-row .n { font: 500 13px var(--font-mono); text-align: right; font-variant-numeric: tabular-nums; }
+.chart-wrap { overflow-x: auto; }
+svg text { font-family: var(--font-mono); font-size: 11px; fill: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px; font-size: 12px; color: var(--muted); }
+.legend span { display: inline-flex; gap: 6px; align-items: center; }
+
+.wins { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.win { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 2px 10px; }
+.win .b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.win .e { font: 12px var(--font-mono); color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; grid-column: 1; }
+.win .c { grid-row: 1 / span 2; grid-column: 2; align-self: center; font: 700 22px var(--font-display); font-variant-numeric: tabular-nums; }
+.win.done { opacity: 0.55; }
+
+.filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
+.filters input[type="search"] { font: 14px var(--font-body); padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--fg); min-width: 0; width: 220px; max-width: 100%; }
+.chip { font: 500 12.5px var(--font-body); padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+.chip.on { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+select { font: 13px var(--font-body); padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--fg); }
+
+.table-wrap { position: relative; overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+table { width: 100%; border-collapse: collapse; min-width: 860px; }
+th, td { padding: 9px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+th { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; background: var(--surface); position: sticky; top: 0; }
+th button { all: unset; cursor: pointer; }
+th button:focus-visible { outline: 2px solid var(--accent); }
+tr:last-child td { border-bottom: 0; }
+td.sender .b { font-weight: 600; }
+td.sender .e { font: 12px var(--font-mono); color: var(--muted); }
+td.num { font: 500 13px var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.mini { display: inline-block; width: 56px; height: 6px; background: var(--surface-2); border-radius: 3px; margin-left: 8px; vertical-align: middle; overflow: hidden; }
+.mini i { display: block; height: 100%; background: var(--fg); opacity: 0.55; }
+.pill { display: inline-flex; gap: 6px; align-items: center; font-size: 12px; padding: 2px 9px 2px 7px; border-radius: 999px; background: var(--surface-2); white-space: nowrap; }
+td.why { color: var(--muted); max-width: 320px; font-size: 13px; }
+td.why .s { color: var(--fg); font-style: italic; display: block; margin-bottom: 2px; }
+td.act select.changed { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.act-unsubscribe { color: var(--stamp); }
+.empty { padding: 28px; text-align: center; color: var(--muted); }
+
+.plan { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.plan .panel { display: flex; flex-direction: column; gap: 8px; }
+.plan .ph { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.plan .ph strong { font-family: var(--font-display); font-size: 17px; }
+.plan .ph span { font: 12.5px var(--font-mono); color: var(--muted); }
+.plan p { margin: 0; color: var(--muted); font-size: 13px; }
+.plan .stripe { height: 4px; border-radius: 2px; }
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 8px 14px; border-radius: 8px; font-size: 13px; z-index: 20; }
+.foot { margin-top: 32px; color: var(--muted); font-size: 12.5px; display: flex; flex-wrap: wrap; gap: 8px 20px; justify-content: space-between; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+textarea.copybox { width: 100%; min-height: 80px; font: 12px var(--font-mono); background: var(--surface-2); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<style>
+/* Clean admin look: white cards on a pale blue-grey field, royal blue accent with coral, pink and lavender. */
+:root {
+  --bg: #f3f4f9;
+  --surface: #ffffff;
+  --surface-2: #eef0f7;
+  --fg: #1b2045;
+  --muted: #6b7290;
+  --line: #e6e8f0;
+  --accent: #2b3fd1;          /* royal blue */
+  --accent-ink: #ffffff;
+  --stamp: #f2875a;           /* coral highlight */
+  --shadow: 0 4px 20px rgba(30, 40, 90, 0.06);
+  --c1: #2a78d6; --c2: #eb6834; --c3: #1baf7a; --c4: #eda100; --c5: #e87ba4; --c6: #008300;
+  --g-promotions: #2a78d6;
+  --g-newsletters: #eb6834;
+  --g-social: #1baf7a;
+  --g-transactional: #e87ba4;
+  --g-service: #eda100;
+  --g-suspicious: #e34948;
+  --g-review: #008300;
+  --g-people: #6250d6;
+  --font-display: "Montserrat", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Montserrat", "Segoe UI", system-ui, sans-serif;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11152a; --surface: #1a2040; --surface-2: #232a50; --fg: #eef0fb; --muted: #a2a9c8; --line: #2b3360;
+    --accent: #7d8cff; --accent-ink: #0f1330; --stamp: #ff9c74; --shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+    --c1: #3987e5; --c2: #d95926; --c3: #199e70; --c4: #c98500; --c5: #d55181; --c6: #008300;
+    --g-promotions: #3987e5; --g-newsletters: #d95926; --g-social: #199e70; --g-transactional: #d55181;
+    --g-service: #c98500; --g-suspicious: #e66767; --g-review: #008300; --g-people: #9085e9;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11152a; --surface: #1a2040; --surface-2: #232a50; --fg: #eef0fb; --muted: #a2a9c8; --line: #2b3360;
+  --accent: #7d8cff; --accent-ink: #0f1330; --stamp: #ff9c74; --shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  --c1: #3987e5; --c2: #d95926; --c3: #199e70; --c4: #c98500; --c5: #d55181; --c6: #008300;
+    --g-promotions: #3987e5; --g-newsletters: #d95926; --g-social: #199e70; --g-transactional: #d55181;
+    --g-service: #c98500; --g-suspicious: #e66767; --g-review: #008300; --g-people: #9085e9;
+  color-scheme: dark;
+}
+
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); }
+.airmail { display: none; }
+
+/* Header: hamburger mark + compact title, like an app bar */
+header.top { padding-block: 28px 22px; align-items: center; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: 24px; letter-spacing: 0; display: flex; align-items: center; gap: 12px; }
+h1::before {
+  content: ""; width: 26px; height: 22px; flex: none; background: var(--accent);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 22'%3E%3Crect width='26' height='3.2' rx='1.6'/%3E%3Crect y='9.4' width='18' height='3.2' rx='1.6'/%3E%3Crect y='18.8' width='26' height='3.2' rx='1.6'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 22'%3E%3Crect width='26' height='3.2' rx='1.6'/%3E%3Crect y='9.4' width='18' height='3.2' rx='1.6'/%3E%3Crect y='18.8' width='26' height='3.2' rx='1.6'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.sub { font-size: 13px; }
+h2 { font-family: var(--font-display); font-weight: 600; font-size: 17px; }
+
+/* Cards */
+.stat, .panel, .win, .table-wrap { background: var(--surface); border: 0; border-radius: var(--radius); box-shadow: var(--shadow); }
+.stats { background: none; border: 0; gap: 20px; overflow: visible; }
+.stat { align-items: center; text-align: center; padding: 22px 16px 20px; gap: 4px; }
+.stat .k { order: 1; text-transform: none; letter-spacing: 0; font-size: 14px; font-weight: 500; color: var(--muted); }
+.stat .v { order: 2; font-family: var(--font-display); font-weight: 600; font-size: 22px; }
+.stat .d { order: 3; font-size: 12px; }
+.stat.hl .v { color: var(--stamp); }
+.stat::before {
+  content: ""; order: 0; width: 32px; height: 32px; margin-bottom: 8px; background: var(--accent);
+  -webkit-mask: var(--icon) center / contain no-repeat; mask: var(--icon) center / contain no-repeat;
+}
+/* Outline icons: inbox · people · eye-off · person · scissors */
+.stat:nth-child(1) { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 13l3-8h12l3 8v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z'/%3E%3Cpath d='M3 13h5l1.5 2.5h5L16 13h5'/%3E%3C/svg%3E"); }
+.stat:nth-child(2) { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='9' cy='8' r='3.5'/%3E%3Cpath d='M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5'/%3E%3Ccircle cx='17' cy='9' r='2.5'/%3E%3Cpath d='M17 14c2.3 0 4 1.5 4.5 4.5'/%3E%3C/svg%3E"); }
+.stat:nth-child(3) { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3.6-7 10-7c2 0 3.7.7 5.1 1.6M22 12s-3.6 7-10 7c-2 0-3.7-.7-5.1-1.6'/%3E%3Cpath d='M9.9 9.9a3 3 0 0 0 4.2 4.2'/%3E%3Cpath d='M3 3l18 18'/%3E%3C/svg%3E"); }
+.stat:nth-child(4) { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='8' r='4'/%3E%3Cpath d='M4 21c1-4.2 4.1-6.5 8-6.5s7 2.3 8 6.5'/%3E%3C/svg%3E"); }
+.stat:nth-child(5) { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='6' cy='6' r='3'/%3E%3Ccircle cx='6' cy='18' r='3'/%3E%3Cpath d='M8.6 7.6L20 18M8.6 16.4L20 6'/%3E%3C/svg%3E"); }
+.stat.hl::before { background: var(--stamp); }
+
+.panel { padding: 22px; }
+.panel h3 { text-transform: none; letter-spacing: 0; font-size: 15px; font-weight: 600; color: var(--fg); margin-bottom: 16px; }
+.bar-row .n { font-family: var(--font-body); font-weight: 600; }
+.bar-track { height: 6px; border-radius: 3px; background: var(--surface-2); }
+.bar-fill { border-radius: 3px; }
+svg text { font-family: var(--font-body); }
+
+.win { padding: 14px 16px; }
+.win .b { font-weight: 600; }
+.win .c { font-family: var(--font-display); font-weight: 600; color: var(--accent); }
+
+/* Controls */
+.btn { border-radius: 6px; border-color: var(--line); background: var(--surface); font-family: var(--font-body); font-weight: 500; box-shadow: var(--shadow); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); border-radius: 4px; }
+.chip { font-family: var(--font-body); background: var(--surface); border-color: var(--line); }
+.chip.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+select, .filters input[type="search"] { font-family: var(--font-body); background: var(--surface); border-color: var(--line); border-radius: 6px; }
+.save-state, td.num, .win .e, td.sender .e, .sub code { font-family: var(--font-body); }
+
+/* Table */
+th { background: var(--surface); color: var(--muted); font-weight: 600; text-transform: none; letter-spacing: 0; font-size: 13px; }
+td.sender .b { font-weight: 600; }
+.pill { background: var(--surface-2); font-weight: 500; }
+.plan .ph strong { font-family: var(--font-display); font-weight: 600; font-size: 16px; }
+.plan .stripe { height: 3px; }
+.toast { background: var(--fg); color: var(--bg); }
+</style>
+
+
+<div class="airmail" aria-hidden="true"></div>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Inbox Triage Board</h1>
+      <p class="sub" id="subline">Loading scan…</p>
+    </div>
+    <div class="toolbar">
+      <span class="save-state" id="saveState">Decisions not saved yet</span>
+      <label class="btn" for="fileIn">Load scan JSON</label>
+      <input type="file" id="fileIn" accept="application/json,.json" class="sr">
+      <button class="btn" id="resetBtn" type="button">Reset to suggestions</button>
+    </div>
+  </header>
+
+  <div class="stats" id="stats"></div>
+
+<style>
+/* Insight charts: same cards as the rest of the page */
+.ins-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 20px; }
+.ins-grid > .panel { grid-column: span 6; min-width: 0; }
+.ins-grid > .panel.wide { grid-column: span 12; }
+.ins-grid > .panel.third { grid-column: span 4; }
+.ins-grid > .panel.two3 { grid-column: span 8; }
+@media (max-width: 900px) { .ins-grid > .panel, .ins-grid > .panel.third, .ins-grid > .panel.two3 { grid-column: span 12; } }
+.chart-box { position: relative; height: 260px; }
+.chart-box.tall { height: 380px; }
+.panel .hint { margin: -10px 0 12px; color: var(--muted); font-size: 12.5px; }
+.kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
+.kpi { background: var(--surface-2); border-radius: 8px; padding: 10px 12px; }
+.kpi b { display: block; font-size: 20px; font-variant-numeric: tabular-nums; }
+.kpi span { font-size: 12px; color: var(--muted); }
+.kpi.bad b { color: var(--g-suspicious); }
+.ev-wrap { max-height: 320px; overflow: auto; border-top: 1px solid var(--line); margin-top: 12px; }
+.ev { width: 100%; border-collapse: collapse; min-width: 0; font-size: 13px; }
+.ev td { padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.ev td.d { white-space: nowrap; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ev td.s { font-weight: 600; white-space: nowrap; }
+.ev tr.flag td { background: color-mix(in srgb, var(--g-suspicious) 10%, transparent); }
+.tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: var(--surface-2); color: var(--muted); white-space: nowrap; }
+.tag.warn { background: var(--g-suspicious); color: #fff; }
+.ev-filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.table-toggle { margin-left: auto; }
+.sr-table { font-size: 12.5px; }
+</style>
+
+<section id="insights">
+  <div class="sec-head"><h2>How much mail comes in</h2><p>Hover any chart for exact numbers. Click legend items to hide or show them.</p></div>
+  <div class="ins-grid">
+    <div class="panel two3">
+      <h3>Emails per week</h3>
+      <p class="hint" id="weeklyNote"></p>
+      <div class="chart-box"><canvas id="cWeekly" aria-label="Emails per week" role="img"></canvas></div>
+    </div>
+    <div class="panel third">
+      <h3>Where TabTidy would put it</h3>
+      <p class="hint" id="tabsHint">Emails per Gmail tab</p>
+      <div class="chart-box"><canvas id="cTabs" aria-label="Emails per Gmail tab" role="img"></canvas></div>
+    </div>
+    <div class="panel two3">
+      <h3>Top 15 senders</h3>
+      <p class="hint">Click a bar to find that sender in the table below.</p>
+      <div class="chart-box tall"><canvas id="cTop" aria-label="Top 15 senders by emails" role="img"></canvas></div>
+    </div>
+    <div class="panel third">
+      <h3>New senders each month</h3>
+      <p class="hint">Senders you hadn't heard from before</p>
+      <div class="chart-box tall"><canvas id="cNew" aria-label="New senders per month" role="img"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><h2>Logins &amp; security</h2><p>Every login alert, code and account change, by service. Click a bar to filter the list.</p></div>
+  <div class="ins-grid">
+    <div class="panel">
+      <h3>Alerts per service</h3>
+      <div class="chart-box tall"><canvas id="cSec" aria-label="Security emails per service, by kind" role="img"></canvas></div>
+    </div>
+    <div class="panel">
+      <h3>Alert timeline</h3>
+      <div class="kpis" id="secKpis"></div>
+      <div class="ev-filters" id="secChips"></div>
+      <div class="ev-wrap"><table class="ev" id="secTable"></table></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><h2>Bills &amp; payments</h2><p>Receipts, plan changes and payment problems found in your mail.</p></div>
+  <div class="ins-grid">
+    <div class="panel">
+      <h3>Money mail per service</h3>
+      <div class="chart-box"><canvas id="cBills" aria-label="Money emails per service, by kind" role="img"></canvas></div>
+    </div>
+    <div class="panel">
+      <h3>Latest money mail</h3>
+      <div class="kpis" id="billKpis"></div>
+      <div class="ev-wrap"><table class="ev" id="billTable"></table></div>
+    </div>
+  </div>
+</section>
+
+  <section>
+    <div class="sec-head"><h2>Where the mail comes from</h2><p>Click a group to filter the sender table.</p></div>
+    <div class="charts">
+      <div class="panel"><h3>Emails per group</h3><div id="groupBars"></div></div>
+      <div class="panel"><h3>Emails per month, by group</h3><div class="chart-wrap" id="monthChart"></div><div class="legend" id="legend"></div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Quick wins</h2><p>The senders marked Unsubscribe that send you the most mail.</p></div>
+    <div class="wins" id="wins"></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Sort every sender</h2><p id="tableNote"></p></div>
+    <div class="filters">
+      <label class="sr" for="q">Search senders</label>
+      <input type="search" id="q" placeholder="Search sender or brand">
+      <div id="chips" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+      <label class="sr" for="actFilter">Filter by decision</label>
+      <select id="actFilter"><option value="">Any decision</option></select>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th><button type="button" data-sort="brand">Sender</button></th>
+          <th><button type="button" data-sort="group">Group</button></th>
+          <th><button type="button" data-sort="count">Emails ↓</button></th>
+          <th>Trend</th>
+          <th>Why / example subject</th>
+          <th>Your decision</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Action plan</h2><p>Copy a Gmail search to select these senders, or hand the decisions back to Claude.</p></div>
+    <div class="plan" id="plan"></div>
+    <div class="panel" style="margin-top:12px">
+      <div class="sec-head" style="margin-bottom:8px"><h3 style="margin:0">Decisions for Claude</h3>
+        <div class="toolbar"><button class="btn primary" id="copyJson" type="button">Copy decisions</button><button class="btn" id="dlJson" type="button" hidden>Download decisions.json</button></div></div>
+      <p style="margin:0 0 8px;color:var(--muted);font-size:13px">Paste this into Claude with prompt 05 to carry out the cleanup. Nothing in Gmail changes from this page.</p>
+      <label class="sr" for="jsonOut">Decisions JSON</label>
+      <textarea class="copybox" id="jsonOut" readonly></textarea>
+    </div>
+  </section>
+
+  <div class="foot"><span id="footMeta"></span><span>Read-only analysis. This page never touches your mailbox.</span></div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script type="application/json" id="inbox-data">/*DATA*/</script>
+<script>
+(function () {
+  const GROUPS = {
+    security:      { label: "Security & logins", color: "var(--g-suspicious)" },
+    action:        { label: "Action needed", color: "var(--stamp)" },
+    official:      { label: "Official & gov", color: "var(--g-people)" },
+    people:        { label: "Real people", color: "var(--g-people)" },
+    bills:         { label: "Bills & receipts", color: "var(--g-transactional)" },
+    subscriptions: { label: "Subscriptions", color: "var(--g-transactional)" },
+    orders:        { label: "Orders & deliveries", color: "var(--g-service)" },
+    travel:        { label: "Travel & bookings", color: "var(--g-social)" },
+    jobs:          { label: "Jobs", color: "var(--g-service)" },
+    newsletters:   { label: "Newsletters", color: "var(--g-newsletters)" },
+    notices:       { label: "App & service notices", color: "var(--g-service)" },
+    social:        { label: "Social notifications", color: "var(--g-social)" },
+    promotions:    { label: "Promotions / ads", color: "var(--g-promotions)" },
+    suspicious:    { label: "Suspicious", color: "var(--g-suspicious)" },
+    review:        { label: "Needs review", color: "var(--g-review)" },
+    // older group names, still accepted
+    transactional: { label: "Transactional (keep)", color: "var(--g-transactional)" },
+    service:       { label: "Service notices", color: "var(--g-service)" }
+  };
+  const ACTIONS = {
+    unsubscribe: { label: "Unsubscribe", hint: "Stop the mail at the source. Click the sender's unsubscribe link, or turn off notifications in the app.", color: "var(--stamp)" },
+    archive:     { label: "Archive", hint: "Remove from inbox. Still searchable, nothing is deleted.", color: "var(--g-service)" },
+    label:       { label: "Label, skip inbox", hint: "Keep it, but file it under a label so it stops crowding the inbox.", color: "var(--g-newsletters)" },
+    keep:        { label: "Keep in inbox", hint: "Mail that matters: security alerts, payments, support replies.", color: "var(--g-transactional)" },
+    delete:      { label: "Delete", hint: "Move to Trash (kept 30 days). Check for security mail from the same company first.", color: "var(--g-suspicious)" },
+    spam:        { label: "Mark as spam", hint: "For suspicious senders. Never click their unsubscribe links.", color: "var(--g-suspicious)" }
+  };
+  const CUT = new Set(["unsubscribe", "archive", "delete", "spam"]);
+  const LS_KEY = "inbox-triage-decisions";
+
+  let data = JSON.parse(document.getElementById("inbox-data").textContent);
+  let decisions = {};          // email -> action (user overrides)
+  let db = null;
+  const ui = { q: "", group: "", act: "", sort: "count", dir: -1 };
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const fmt = (n) => n.toLocaleString();
+  const decisionOf = (s) => decisions[s.email] || s.action;
+  const docId = (email) => email.replace(/[^A-Za-z0-9_\-.~:@+]/g, "_").replace(/^\.+$/, "_");
+
+  function toast(msg) { const t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), 2200); }
+
+  function lsLoad() { try { return JSON.parse(localStorage.getItem(LS_KEY) || "{}"); } catch (e) { return {}; } }
+  function lsSave() { try { localStorage.setItem(LS_KEY, JSON.stringify(decisions)); return true; } catch (e) { return false; } }
+
+  function setSaveState(where) {
+    const n = Object.keys(decisions).length;
+    $("saveState").innerHTML = n ? `<b>●</b> ${n} change${n === 1 ? "" : "s"} saved ${esc(where)}` : `Showing Claude's suggestions`;
+  }
+
+  async function persist(email, action) {
+    const suggested = (data.senders.find((s) => s.email === email) || {}).action;
+    if (action === suggested) delete decisions[email]; else decisions[email] = action;
+    if (db) {
+      try {
+        const ref = db.doc("decisions/" + docId(email));
+        if (action === suggested) await ref.delete(); else await ref.set({ email, action, updated: new Date().toISOString() });
+        setSaveState("to this dashboard");
+        return;
+      } catch (e) { /* fall through to browser storage */ }
+    }
+    setSaveState(lsSave() ? "in this browser" : "for this visit only");
+  }
+
+  function renderStats() {
+    const S = data.senders, m = data.meta || {};
+    const total = S.reduce((a, s) => a + s.count, 0);
+    const people = S.filter((s) => s.group === "people").reduce((a, s) => a + s.count, 0);
+    const cut = S.filter((s) => CUT.has(decisionOf(s))).reduce((a, s) => a + s.count, 0);
+    const unread = m.unread_threads;
+    const months = (m.months || []).length || 1;
+    const items = [
+      { k: "Emails scanned", v: fmt(total), d: `${fmt(Math.round(total / months))} a month on average` },
+      { k: "Different senders", v: fmt(S.length), d: `${S.filter((s) => s.count >= 5).length} sent 5 or more` },
+      unread != null ? { k: "Never opened", v: Math.round((unread / total) * 100) + "%", d: `${fmt(unread)} of ${fmt(total)} still unread` } : null,
+      { k: "From real people", v: fmt(people), d: people ? "worth protecting" : "everything here is automated" },
+      { k: "Cut by your plan", v: Math.round((cut / Math.max(total, 1)) * 100) + "%", d: `${fmt(cut)} emails from senders you'd stop or archive`, hl: true }
+    ].filter(Boolean);
+    $("stats").innerHTML = items.map((i) => `<div class="stat${i.hl ? " hl" : ""}"><span class="k">${i.k}</span><span class="v">${i.v}</span><span class="d">${i.d}</span></div>`).join("");
+  }
+
+  function groupTotals() {
+    const t = {};
+    data.senders.forEach((s) => (t[s.group] = (t[s.group] || 0) + s.count));
+    return Object.entries(t).sort((a, b) => b[1] - a[1]);
+  }
+
+  function renderGroupBars() {
+    const gt = groupTotals(), max = gt.length ? gt[0][1] : 1;
+    $("groupBars").innerHTML = gt.map(([g, n]) => {
+      const G = GROUPS[g] || { label: g, color: "var(--muted)" };
+      return `<button type="button" class="bar-row${ui.group === g ? " on" : ""}" data-g="${esc(g)}" aria-pressed="${ui.group === g}">
+        <span class="lbl"><span class="dot" style="background:${G.color}"></span>${esc(G.label)}</span>
+        <span class="bar-track"><span class="bar-fill" style="display:block;width:${(n / max) * 100}%;background:${G.color}"></span></span>
+        <span class="n">${n}</span></button>`;
+    }).join("");
+    $("groupBars").querySelectorAll(".bar-row").forEach((b) => b.addEventListener("click", () => { ui.group = ui.group === b.dataset.g ? "" : b.dataset.g; renderAll(); }));
+  }
+
+  function renderMonthChart() {
+    const months = (data.meta && data.meta.months) || [];
+    if (!months.length) { $("monthChart").innerHTML = '<p class="empty">No monthly breakdown in this scan.</p>'; return; }
+    const order = groupTotals().map(([g]) => g);
+    const stacks = months.map((_, i) => order.map((g) => data.senders.filter((s) => s.group === g).reduce((a, s) => a + ((s.by_month || [])[i] || 0), 0)));
+    const totals = stacks.map((st) => st.reduce((a, b) => a + b, 0));
+    const max = Math.max(...totals, 1);
+    const step = max > 80 ? 20 : max > 40 ? 10 : 5, top = Math.ceil(max / step) * step;
+    const W = 600, H = 240, L = 36, R = 8, T = 18, B = 26, iw = W - L - R, ih = H - T - B;
+    const bw = (iw / months.length) * 0.6, gap = iw / months.length;
+    const y = (v) => T + ih - (v / top) * ih;
+    let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Emails per month stacked by group">`;
+    for (let v = 0; v <= top; v += step) svg += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`;
+    months.forEach((mo, i) => {
+      const x = L + gap * i + (gap - bw) / 2; let acc = 0;
+      order.forEach((g, k) => {
+        const v = stacks[i][k]; if (!v) return;
+        const G = GROUPS[g] || { color: "var(--muted)" };
+        svg += `<rect x="${x}" y="${y(acc + v)}" width="${bw}" height="${y(acc) - y(acc + v)}" fill="${G.color}"${ui.group && ui.group !== g ? ' opacity="0.25"' : ""}><title>${esc((GROUPS[g] || {}).label || g)}: ${v}</title></rect>`;
+        acc += v;
+      });
+      const label = new Date(mo + "-01T00:00:00").toLocaleString(undefined, { month: "short" });
+      svg += `<text x="${x + bw / 2}" y="${y(totals[i]) - 5}" text-anchor="middle" style="fill:var(--fg)">${totals[i]}</text><text x="${x + bw / 2}" y="${H - 8}" text-anchor="middle">${label}</text>`;
+    });
+    $("monthChart").innerHTML = svg + "</svg>";
+    $("legend").innerHTML = order.map((g) => `<span><span class="dot" style="background:${(GROUPS[g] || {}).color || "var(--muted)"}"></span>${esc((GROUPS[g] || {}).label || g)}</span>`).join("");
+  }
+
+  function renderWins() {
+    const w = data.senders.filter((s) => s.action === "unsubscribe").sort((a, b) => b.count - a.count).slice(0, 8);
+    $("wins").innerHTML = w.length ? w.map((s) => `<div class="win${decisionOf(s) !== "unsubscribe" ? " done" : ""}"><span class="b">${esc(s.brand)}</span><span class="c">${s.count}</span><span class="e">${esc(s.email)}</span></div>`).join("") : '<p class="empty">No unsubscribe candidates in this scan.</p>';
+  }
+
+  function spark(arr) {
+    if (!arr || !arr.length) return "";
+    const max = Math.max(...arr, 1), w = 72, h = 20, st = w / Math.max(arr.length - 1, 1);
+    const pts = arr.map((v, i) => `${(i * st).toFixed(1)},${(h - 2 - (v / max) * (h - 4)).toFixed(1)}`).join(" ");
+    const last = pts.split(" ").pop().split(",");
+    return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-label="Monthly: ${arr.join(", ")}"><polyline points="${pts}" fill="none" stroke="var(--muted)" stroke-width="1.5"/><circle cx="${last[0]}" cy="${last[1]}" r="2.5" fill="var(--fg)"/></svg>`;
+  }
+
+  function filtered() {
+    const q = ui.q.trim().toLowerCase();
+    let list = data.senders.filter((s) =>
+      (!ui.group || s.group === ui.group) &&
+      (!ui.act || decisionOf(s) === ui.act) &&
+      (!q || (s.email + " " + s.brand + " " + (s.sample_subject || "")).toLowerCase().includes(q)));
+    const k = ui.sort;
+    list.sort((a, b) => (k === "count" ? (a.count - b.count) * ui.dir : String(a[k]).localeCompare(String(b[k])) * ui.dir) || b.count - a.count);
+    return list;
+  }
+
+  function renderChips() {
+    const present = new Set(data.senders.map((s) => s.group));
+    $("chips").innerHTML = [`<button type="button" class="chip${!ui.group ? " on" : ""}" data-g="">All groups</button>`]
+      .concat(Object.keys(GROUPS).filter((g) => present.has(g)).map((g) => `<button type="button" class="chip${ui.group === g ? " on" : ""}" data-g="${g}"><span class="dot" style="background:${GROUPS[g].color}"></span>${GROUPS[g].label}</button>`)).join("");
+    $("chips").querySelectorAll(".chip").forEach((c) => c.addEventListener("click", () => { ui.group = c.dataset.g; renderAll(); }));
+  }
+
+  function renderRows() {
+    const list = filtered(), max = Math.max(...data.senders.map((s) => s.count), 1);
+    $("tableNote").textContent = `${list.length} of ${data.senders.length} senders shown. Changes save as you pick.`;
+    if (!list.length) { $("rows").innerHTML = `<tr><td colspan="6" class="empty">No senders match. Clear the search or pick another group.</td></tr>`; return; }
+    $("rows").innerHTML = list.map((s, i) => {
+      const G = GROUPS[s.group] || { label: s.group, color: "var(--muted)" }, d = decisionOf(s), id = "act-" + i;
+      return `<tr>
+        <td class="sender"><div class="b">${esc(s.brand)}</div><div class="e">${esc(s.email)}</div></td>
+        <td><span class="pill"><span class="dot" style="background:${G.color}"></span>${esc(G.label)}</span></td>
+        <td class="num">${s.count}<span class="mini"><i style="width:${(s.count / max) * 100}%"></i></span></td>
+        <td>${spark(s.by_month)}</td>
+        <td class="why">${s.sample_subject ? `<span class="s">“${esc(s.sample_subject)}”</span>` : ""}${esc(s.reason || "")}</td>
+        <td class="act"><label class="sr" for="${id}">Decision for ${esc(s.email)}</label>
+          <select id="${id}" data-email="${esc(s.email)}" class="${d !== s.action ? "changed" : ""} act-${d}">
+            ${Object.entries(ACTIONS).map(([k, a]) => `<option value="${k}"${k === d ? " selected" : ""}>${a.label}${k === s.action ? " (suggested)" : ""}</option>`).join("")}
+          </select></td></tr>`;
+    }).join("");
+    $("rows").querySelectorAll("select").forEach((sel) => sel.addEventListener("change", async () => {
+      await persist(sel.dataset.email, sel.value);
+      renderStats(); renderWins(); renderPlan(); renderRows();
+    }));
+  }
+
+  function gmailQuery(list) {
+    const doms = {};
+    list.forEach((s) => (doms[s.email] = 1));
+    return "from:(" + Object.keys(doms).join(" OR ") + ")";
+  }
+
+  function decisionsPayload() {
+    const by = {};
+    data.senders.forEach((s) => { const d = decisionOf(s); (by[d] = by[d] || []).push({ email: s.email, brand: s.brand, group: s.group, emails: s.count, changed_from_suggestion: d !== s.action }); });
+    return { source: "inbox-triage-dashboard", scanned_on: (data.meta || {}).scanned_on, range: [(data.meta || {}).range_from, (data.meta || {}).range_to], decisions: by };
+  }
+
+  function renderPlan() {
+    $("plan").innerHTML = Object.entries(ACTIONS).map(([k, a]) => {
+      const list = data.senders.filter((s) => decisionOf(s) === k);
+      if (!list.length) return "";
+      const n = list.reduce((x, s) => x + s.count, 0);
+      return `<div class="panel"><div class="stripe" style="background:${a.color}"></div>
+        <div class="ph"><strong>${a.label}</strong><span>${list.length} senders · ${n} emails</span></div>
+        <p>${a.hint}</p>
+        <div class="toolbar"><button class="btn" type="button" data-copyq="${k}">Copy Gmail search</button></div></div>`;
+    }).join("");
+    $("plan").querySelectorAll("[data-copyq]").forEach((b) => b.addEventListener("click", () => copy(gmailQuery(data.senders.filter((s) => decisionOf(s) === b.dataset.copyq)), "Gmail search copied. Paste it into Gmail's search bar.")));
+    $("jsonOut").value = JSON.stringify(decisionsPayload(), null, 2);
+  }
+
+  async function copy(text, msg) {
+    try { await navigator.clipboard.writeText(text); toast(msg); }
+    catch (e) { const t = $("jsonOut"); t.value = text; t.focus(); t.select(); toast("Selected below. Press Ctrl+C or ⌘C to copy."); }
+  }
+
+  function renderHeader() {
+    const m = data.meta || {};
+    $("subline").innerHTML = `${m.label ? `<code>${esc(m.label)}</code> · ` : ""}${m.range_from ? `${esc(m.range_from)} to ${esc(m.range_to)}` : ""}${m.sample ? " · <strong>Sample data</strong>, load your own scan to begin" : ""}`;
+    const tabs = m.gmail_tabs ? " · Gmail tabs: " + Object.entries(m.gmail_tabs).map(([k, v]) => `${k} ${v}`).join(", ") : "";
+    $("footMeta").textContent = (m.notes || "") + tabs;
+  }
+
+  function renderAll() { renderHeader(); renderStats(); renderGroupBars(); renderMonthChart(); renderWins(); renderChips(); renderRows(); renderPlan(); }
+
+  // Controls
+  $("q").addEventListener("input", (e) => { ui.q = e.target.value; renderRows(); });
+  const af = $("actFilter");
+  Object.entries(ACTIONS).forEach(([k, a]) => af.insertAdjacentHTML("beforeend", `<option value="${k}">${a.label}</option>`));
+  af.addEventListener("change", () => { ui.act = af.value; renderRows(); });
+  document.querySelectorAll("th [data-sort]").forEach((b) => b.addEventListener("click", () => {
+    const k = b.dataset.sort; ui.dir = ui.sort === k ? -ui.dir : (k === "count" ? -1 : 1); ui.sort = k; renderRows();
+  }));
+  $("copyJson").addEventListener("click", () => copy($("jsonOut").value, "Decisions copied. Paste them into Claude with prompt 05."));
+  $("resetBtn").addEventListener("click", async () => {
+    const emails = Object.keys(decisions);
+    for (const e of emails) { const s = data.senders.find((x) => x.email === e); if (s) await persist(e, s.action); }
+    decisions = {}; lsSave(); setSaveState(""); renderAll(); toast("Back to Claude's suggestions");
+  });
+  $("fileIn").addEventListener("change", (e) => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try {
+        const d = JSON.parse(r.result);
+        if (!Array.isArray(d.senders)) throw new Error("missing senders");
+        data = d; renderAll(); toast(`Loaded ${d.senders.length} senders from ${f.name}`);
+      } catch (err) { toast("That file isn't a scan in the dashboard format. See docs/data-schema.md."); }
+    };
+    r.readAsText(f);
+  });
+
+  // Start with browser-saved decisions, then upgrade to the shared store when it answers.
+  decisions = lsLoad();
+  setSaveState(Object.keys(decisions).length ? "in this browser" : "");
+  renderAll();
+
+  if (!window.claude) {
+    // Standalone (e.g. opened from the GitHub repo): offer a real file download.
+    const dl = $("dlJson"); dl.hidden = false;
+    dl.addEventListener("click", () => {
+      const blob = new Blob([$("jsonOut").value], { type: "application/json" });
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "decisions.json"; a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    });
+  } else if (window.claude.use) {
+    window.claude.use("db").then((store) => {
+      if (!store) return;
+      db = store;
+      db.collection("decisions").onSnapshot((snap) => {
+        const next = {};
+        snap.docs.forEach((d) => { const v = d.data(); if (v && v.email && v.action) next[v.email] = v.action; });
+        decisions = next;
+        setSaveState("to this dashboard");
+        renderStats(); renderWins(); renderPlan(); renderRows();
+      }, () => { db = null; });
+    });
+  }
+})();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+(function () {
+  const D = JSON.parse(document.getElementById("inbox-data").textContent);
+  const I = D.insights;
+  if (!I || !window.Chart) { const s = document.getElementById("insights"); if (s) s.hidden = true; return; }
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const fmtDate = (d) => new Date(d + "T00:00:00").toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+
+  // Validated categorical slots, fixed order (blue, orange, aqua, yellow, magenta, green)
+  const SLOTS = () => [1, 2, 3, 4, 5, 6].map((i) => css("--c" + i));
+  const GROUP_LABEL = { promotions: "Promotions / ads", newsletters: "Newsletters", social: "Social", service: "Service notices", notices: "App & service notices", transactional: "Transactional", bills: "Bills & receipts", subscriptions: "Subscriptions", orders: "Orders", travel: "Travel", jobs: "Jobs", security: "Security", action: "Action needed", official: "Official", review: "Needs review", suspicious: "Suspicious", people: "People" };
+  const GROUP_ORDER = ["promotions", "newsletters", "social", "service", "notices", "transactional", "bills", "subscriptions", "orders", "travel", "jobs", "security", "action", "official", "review", "suspicious", "people"];
+  const KIND = { login: "Login alert", code: "Code / OTP", access: "App given access", change: "Account change", verify: "Verify email" };
+  const KIND_ORDER = ["login", "code", "access", "change", "verify"];
+  const MONEY = { problem: "Payment problem", plan: "Plan / subscription", receipt: "Receipt" };
+  const MONEY_ORDER = ["receipt", "plan", "problem"];
+
+  const charts = [];
+  function base(extra) {
+    const ink = css("--fg"), muted = css("--muted"), line = css("--line");
+    return Object.assign({
+      responsive: true, maintainAspectRatio: false, animation: { duration: 400 },
+      interaction: { mode: "nearest", intersect: false },
+      plugins: {
+        legend: { labels: { color: muted, boxWidth: 10, boxHeight: 10, usePointStyle: true, pointStyle: "rectRounded", font: { family: css("--font-body") } } },
+        tooltip: { backgroundColor: css("--fg"), titleColor: css("--bg"), bodyColor: css("--bg"), padding: 10, cornerRadius: 6, titleFont: { family: css("--font-body"), weight: "600" }, bodyFont: { family: css("--font-body") } },
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: muted, font: { family: css("--font-body") } }, border: { color: line } },
+        y: { grid: { color: line }, ticks: { color: muted, precision: 0, font: { family: css("--font-body") } }, border: { display: false }, beginAtZero: true },
+      },
+    }, extra || {});
+  }
+  const bar = (o) => Object.assign({ borderRadius: 4, borderSkipped: "start", borderWidth: 2, borderColor: css("--surface") === "" ? "transparent" : css("--bg"), maxBarThickness: 28 }, o);
+
+  function draw() {
+    charts.splice(0).forEach((c) => c.destroy());
+    const C = SLOTS();
+
+    // Weekly volume
+    $("weeklyNote").textContent = I.weekly_note || "";
+    if (D.meta.range_from) $("tabsHint").textContent = "Emails per Gmail tab, " + fmtDate(D.meta.range_from) + " – " + fmtDate(D.meta.range_to);
+    const wk = I.weekly.map((w) => new Date(w.week + "T00:00:00").toLocaleDateString(undefined, { day: "numeric", month: "short" }));
+    charts.push(new Chart($("cWeekly"), {
+      type: "line",
+      data: { labels: wk, datasets: [{ label: "Emails that week", data: I.weekly.map((w) => w.count), borderColor: C[0], backgroundColor: C[0] + "26", fill: true, tension: 0.35, borderWidth: 2, pointRadius: 0, pointHoverRadius: 5, pointHoverBackgroundColor: C[0] }] },
+      options: base({ scales: { x: Object.assign(base().scales.x, { ticks: Object.assign(base().scales.x.ticks, { maxRotation: 0, autoSkip: true, autoSkipPadding: 16 }) }), y: base().scales.y }, plugins: Object.assign(base().plugins, { legend: { display: false }, tooltip: Object.assign(base().plugins.tooltip, { callbacks: { title: (t) => "Week of " + t[0].label } }) }) }),
+    }));
+
+    // Tabs
+    const tabOrder = ["Primary", "Updates", "Promotions", "Social", "Forums"].filter((t) => I.tabs[t]);
+    charts.push(new Chart($("cTabs"), {
+      type: "bar",
+      data: { labels: tabOrder, datasets: [{ label: "Emails", data: tabOrder.map((t) => I.tabs[t]), backgroundColor: C[0] }].map(bar) },
+      options: base({ indexAxis: "y", plugins: Object.assign(base().plugins, { legend: { display: false } }), scales: { x: Object.assign(base().scales.y, {}), y: Object.assign(base().scales.x, {}) } }),
+    }));
+
+    // Top senders, coloured by group (identity), with legend
+    const top = D.senders.slice().sort((a, b) => b.count - a.count).slice(0, 15);
+    // Groups present, in a fixed order; each gets its own validated slot. Past six, the rest share a neutral "Other".
+    const groups = GROUP_ORDER.filter((g) => top.some((s) => s.group === g)).concat([...new Set(top.map((s) => s.group))].filter((g) => !GROUP_ORDER.includes(g)));
+    const gColor = (g) => { const i = groups.indexOf(g); return i < 6 ? C[i] : css("--muted"); };
+    charts.push(new Chart($("cTop"), {
+      type: "bar",
+      data: {
+        labels: top.map((s) => s.brand + (top.filter((x) => x.brand === s.brand).length > 1 ? " · " + s.email.split("@")[0] : "")),
+        datasets: groups.map((g) => bar({ label: GROUP_LABEL[g] || g, backgroundColor: gColor(g), data: top.map((s) => (s.group === g ? s.count : null)), stack: "s" })),
+      },
+      options: base({
+        indexAxis: "y",
+        interaction: { mode: "nearest", intersect: true, axis: "y" },
+        scales: { x: Object.assign(base().scales.y, { stacked: true }), y: Object.assign(base().scales.x, { stacked: true }) },
+        plugins: Object.assign(base().plugins, { tooltip: Object.assign(base().plugins.tooltip, { callbacks: { label: (c) => ` ${c.dataset.label}: ${c.raw} emails`, afterLabel: (c) => top[c.dataIndex].email } }) }),
+        onClick: (e, els) => {
+          if (!els.length) return;
+          const s = top[els[0].index], q = document.getElementById("q");
+          if (q) { q.value = s.email; q.dispatchEvent(new Event("input")); q.scrollIntoView({ behavior: "smooth", block: "center" }); }
+        },
+        onHover: (e, els) => { e.native.target.style.cursor = els.length ? "pointer" : "default"; },
+      }),
+    }));
+
+    // New senders per month
+    const months = D.meta.months.map((m) => new Date(m + "-01T00:00:00").toLocaleDateString(undefined, { month: "short" }));
+    charts.push(new Chart($("cNew"), {
+      type: "bar",
+      data: { labels: months, datasets: [bar({ label: "New senders", data: I.new_senders_by_month, backgroundColor: C[2] })] },
+      options: base({ plugins: Object.assign(base().plugins, { legend: { display: false } }) }),
+    }));
+
+    // Security per service, stacked by kind
+    const svcs = I.security.services;
+    charts.push(new Chart($("cSec"), {
+      type: "bar",
+      data: { labels: svcs.map((s) => s.svc), datasets: KIND_ORDER.map((k, i) => bar({ label: KIND[k], data: svcs.map((s) => s[k] || null), backgroundColor: C[i], stack: "k" })) },
+      options: base({
+        indexAxis: "y",
+        interaction: { mode: "index", intersect: false, axis: "y" },
+        scales: { x: Object.assign(base().scales.y, { stacked: true }), y: Object.assign(base().scales.x, { stacked: true }) },
+        plugins: Object.assign(base().plugins, { tooltip: Object.assign(base().plugins.tooltip, { filter: (c) => c.raw, footer: (t) => "Latest: " + fmtDate(svcs[t[0].dataIndex].latest) }) }),
+        onClick: (e, els) => { if (els.length) setSvc(svcs[els[0].index].svc); },
+        onHover: (e, els) => { e.native.target.style.cursor = els.length ? "pointer" : "default"; },
+      }),
+    }));
+
+    // Money per service, stacked by kind
+    const bySvc = {};
+    I.bills.forEach((b) => { (bySvc[b.svc] = bySvc[b.svc] || { receipt: 0, plan: 0, problem: 0 })[b.kind]++; });
+    const bs = Object.keys(bySvc).sort((a, b) => sum(bySvc[b]) - sum(bySvc[a]));
+    charts.push(new Chart($("cBills"), {
+      type: "bar",
+      data: { labels: bs, datasets: MONEY_ORDER.map((k, i) => bar({ label: MONEY[k], data: bs.map((s) => bySvc[s][k] || null), backgroundColor: k === "problem" ? css("--g-suspicious") : C[i], stack: "m" })) },
+      options: base({
+        indexAxis: "y",
+        interaction: { mode: "index", intersect: false, axis: "y" },
+        scales: { x: Object.assign(base().scales.y, { stacked: true }), y: Object.assign(base().scales.x, { stacked: true }) },
+        plugins: Object.assign(base().plugins, { tooltip: Object.assign(base().plugins.tooltip, { filter: (c) => c.raw }) }),
+      }),
+    }));
+  }
+  const sum = (o) => Object.values(o).reduce((a, b) => a + b, 0);
+
+  // Security list + filters
+  let svcFilter = "";
+  function setSvc(s) { svcFilter = svcFilter === s ? "" : s; renderSec(); }
+  function renderSec() {
+    const ev = I.security.events;
+    const since = (d) => ev.filter((e) => e.date >= d);
+    const flagged = ev.filter((e) => e.flag).length;
+    $("secKpis").innerHTML =
+      `<div class="kpi"><b>${ev.length}</b><span>security emails, all time</span></div>` +
+      `<div class="kpi"><b>${since(D.meta.range_from || "").filter((e) => e.kind === "login").length}</b><span>login alerts in this scan</span></div>` +
+      `<div class="kpi${flagged ? " bad" : ""}"><b>${flagged}</b><span>worth a second look</span></div>`;
+    const svcs = ["", ...I.security.services.map((s) => s.svc)];
+    $("secChips").innerHTML = svcs.map((s) => `<button type="button" class="chip${svcFilter === s ? " on" : ""}" data-s="${esc(s)}">${s ? esc(s) : "All"}</button>`).join("") +
+      `<button type="button" class="chip${svcFilter === "!flag" ? " on" : ""}" data-s="!flag">⚠ Flagged</button>`;
+    $("secChips").querySelectorAll(".chip").forEach((b) => b.addEventListener("click", () => setSvc(b.dataset.s)));
+    const rows = ev.filter((e) => !svcFilter || (svcFilter === "!flag" ? e.flag : e.svc === svcFilter));
+    $("secTable").innerHTML = rows.map((e) => `<tr class="${e.flag ? "flag" : ""}"><td class="d">${fmtDate(e.date)}</td><td class="s">${esc(e.svc)}</td><td>${esc(e.subject)} ${e.flag ? '<span class="tag warn">check</span>' : `<span class="tag">${esc(KIND[e.kind])}</span>`}</td></tr>`).join("") || `<tr><td class="d">Nothing here.</td></tr>`;
+  }
+  function renderBills() {
+    const b = I.bills;
+    const n = (k) => b.filter((x) => x.kind === k).length;
+    $("billKpis").innerHTML =
+      `<div class="kpi"><b>${n("receipt")}</b><span>receipts</span></div>` +
+      `<div class="kpi"><b>${n("plan")}</b><span>plan changes</span></div>` +
+      `<div class="kpi${n("problem") ? " bad" : ""}"><b>${n("problem")}</b><span>payment problems</span></div>`;
+    $("billTable").innerHTML = b.map((x) => `<tr class="${x.kind === "problem" ? "flag" : ""}"><td class="d">${fmtDate(x.date)}</td><td class="s">${esc(x.svc)}</td><td>${esc(x.subject)} <span class="tag${x.kind === "problem" ? " warn" : ""}">${esc(MONEY[x.kind])}</span></td></tr>`).join("");
+  }
+
+  const hideIf = (cond, id) => { if (cond) { const el = $(id).closest("section"); if (el) el.hidden = true; } };
+  I.weekly = I.weekly || []; I.tabs = I.tabs || {}; I.new_senders_by_month = I.new_senders_by_month || [];
+  I.security = I.security || { services: [], events: [] }; I.bills = I.bills || [];
+  hideIf(!I.security.events.length, "cSec"); hideIf(!I.bills.length, "cBills");
+  renderSec(); renderBills(); draw();
+  // Redraw with the right colours when the theme changes
+  try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw); } catch (e) {}
+  new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+})();
+</script>

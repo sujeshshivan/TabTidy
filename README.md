@@ -52,6 +52,7 @@ The tricky bits:
 | **You need** | Claude with the Gmail connector | A Google account (that's it) |
 | **What it does** | Scans, groups, builds a dashboard, sorts, unsubscribes, deletes | Sorts every new email into the right tab and label, on a schedule |
 | **Effort** | Chat with Claude, approve each step | ~10 minutes setup, then nothing |
+| **Install** | The [TabTidy Claude plugin](docs/claude-plugin.md), or copy-paste prompts | Apps Script library or copy-paste |
 | **Guide** | [docs/path-1-claude-gmail.md](docs/path-1-claude-gmail.md) | [docs/path-2-script-and-filters.md](docs/path-2-script-and-filters.md) |
 
 **Do both** for the best result: Path 1 cleans up the past, Path 2 keeps it clean.
@@ -84,7 +85,19 @@ The tricky bits:
 
 ## ⚡ Quick start
 
-### Path 1: Claude + Gmail
+### Path 1: Claude + Gmail, as a plugin 🧩 (easiest)
+1. In Claude, connect Gmail: **Settings → Connectors → Gmail**.
+2. Add this repo as a plugin marketplace and install **tabtidy**:
+   - Claude desktop app: **Add marketplace** → `sujeshshivan/TabTidy` → install **tabtidy**.
+   - Claude Code:
+     ```
+     /plugin install tabtidy --marketplace sujeshshivan/TabTidy
+     ```
+3. Say **"tidy my inbox"** or type `/tabtidy:tidy-inbox`.
+
+Full step-by-step guide: [docs/claude-plugin.md](docs/claude-plugin.md).
+
+### Path 1 without the plugin
 1. In Claude, connect Gmail: **Settings → Connectors → Gmail**.
 2. Follow the prompts in order: [`prompts/01-scan.md`](prompts/01-scan.md) → [`09-keep-clean.md`](prompts/09-keep-clean.md).
 
@@ -103,11 +116,13 @@ Identifier: TabTidy
 ## 📁 What's in the box
 
 ```
+.claude-plugin/   marketplace catalogue, so Claude can install the plugin from this repo
+plugins/tabtidy/  the Claude plugin: one skill per step (Path 1, packaged)
 prompts/          9 step-by-step prompts for Claude (Path 1)
 dashboard/        the triage dashboard: template, sample data, sample build
 apps-script/      TabTidy.gs (the sorter) + Wrapper.gs (for library users)
 filters/          ready-to-import Gmail filters + the generator script
-tools/            build a local dashboard · check for personal data
+tools/            build a local dashboard · check for personal data · sync the plugin
 docs/             guides, rules, data format, FAQ
 ```
 

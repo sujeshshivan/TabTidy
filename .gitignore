@@ -6,3 +6,6 @@ scans/
 decisions.json
 .DS_Store
 __pycache__/
+tabtidy-scan.json
+tabtidy-decisions.json
+tabtidy-dashboard.html

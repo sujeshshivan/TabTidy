@@ -9,3 +9,4 @@ jobs:
         with:
           python-version: "3.12"
       - run: python tools/check_no_personal_data.py
+      - run: python tools/sync_plugin.py --check

@@ -1,0 +1,21 @@
+{
+  "name": "tabtidy",
+  "owner": {
+    "name": "sujeshshivan",
+    "url": "https://github.com/sujeshshivan"
+  },
+  "metadata": {
+    "description": "TabTidy: sort Gmail into tabs, find bills, unsubscribe and delete junk, with Claude and the Gmail connector.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "tabtidy",
+      "source": "./plugins/tabtidy",
+      "description": "Guided Gmail clean-up: scan, group senders, dashboard, sort into tabs and labels, find bills, unsubscribe, delete junk safely, and keep it clean.",
+      "version": "1.0.0",
+      "category": "productivity",
+      "keywords": ["gmail", "email", "inbox", "unsubscribe", "bills", "productivity"]
+    }
+  ]
+}
