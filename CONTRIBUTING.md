@@ -22,3 +22,7 @@ Thanks for helping make inboxes calmer.
 
 - One topic per PR, with a short note on what you tested (which prompt, which mail provider, browser).
 - For dashboard changes, check light and dark mode and a phone-width window.
+
+## The Claude plugin
+
+`plugins/tabtidy/` packages the prompts as skills. Its `assets/`, `references/` and `scripts/` files are copies of the originals (dashboard template, rulebook, data format, filters, Apps Script). Edit the originals, then run `python tools/sync_plugin.py`; CI runs it with `--check`. When you change a prompt, update the matching `plugins/tabtidy/skills/*/SKILL.md` too, and bump `version` in both `plugins/tabtidy/.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`.

@@ -1,0 +1,20 @@
+{
+  "name": "tabtidy",
+  "version": "1.0.0",
+  "description": "Guided Gmail clean-up with the Gmail connector: scan, group senders, build a dashboard, sort into tabs and labels, find bills, unsubscribe, delete junk safely, and keep it clean.",
+  "author": {
+    "name": "sujeshshivan",
+    "url": "https://github.com/sujeshshivan"
+  },
+  "homepage": "https://github.com/sujeshshivan/TabTidy",
+  "repository": "https://github.com/sujeshshivan/TabTidy",
+  "license": "MIT",
+  "keywords": [
+    "gmail",
+    "email",
+    "inbox",
+    "unsubscribe",
+    "bills",
+    "productivity"
+  ]
+}
